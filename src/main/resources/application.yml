@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: SalesHub
+  profiles:
+    active:
+      - test

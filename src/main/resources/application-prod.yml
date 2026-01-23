@@ -1,0 +1,17 @@
+spring:
+  main:
+    banner-mode: OFF
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/salesDB
+    username: postgres
+    password: postgres
+
+  jpa:
+    database: POSTGRESQL
+    show-sql: true
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        format_sql: true
