@@ -33,13 +33,13 @@ public class UsuarioController {
         return service.buscar(filter,pageable);
     }
 
-    @PutMapping
+    @PutMapping("{usuarioId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public UsuarioResponse atualizar(@PathVariable Long usuarioId, @RequestBody @Valid UsuarioRequest request) {
         return service.atualizar(usuarioId, request);
     }
 
-    @DeleteMapping
+    @DeleteMapping("{usuarioId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void desativar(@PathVariable Long usuarioId) {
         service.desativar(usuarioId);
