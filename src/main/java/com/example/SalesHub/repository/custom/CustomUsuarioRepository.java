@@ -1,4 +1,4 @@
-package com.example.SalesHub.repository;
+package com.example.SalesHub.repository.custom;
 
 import com.example.SalesHub.dto.filter.UsuarioFilter;
 import com.example.SalesHub.dto.projection.UsuarioProjection;

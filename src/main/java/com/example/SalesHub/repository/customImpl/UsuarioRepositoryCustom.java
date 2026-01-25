@@ -1,10 +1,10 @@
-package com.example.SalesHub.predicate;
+package com.example.SalesHub.repository.customImpl;
 
 import com.example.SalesHub.dto.filter.UsuarioFilter;
 import com.example.SalesHub.dto.projection.UsuarioProjection;
 import com.example.SalesHub.model.QUsuario;
 import com.example.SalesHub.model.Usuario;
-import com.example.SalesHub.repository.CustomUsuarioRepository;
+import com.example.SalesHub.repository.custom.CustomUsuarioRepository;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
