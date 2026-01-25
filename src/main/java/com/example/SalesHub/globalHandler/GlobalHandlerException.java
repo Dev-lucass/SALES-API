@@ -2,8 +2,8 @@ package com.example.SalesHub.globalHandler;
 
 import com.example.SalesHub.dto.response.error.CamposInvalidosRespostaError;
 import com.example.SalesHub.dto.response.error.RespostaError;
-import com.example.SalesHub.exception.UsuarioDuplicadoException;
-import com.example.SalesHub.exception.UsuarioNaoEncontradoException;
+import com.example.SalesHub.exception.EntidadeDuplicadaException;
+import com.example.SalesHub.exception.EntidadeNaoEncontradaException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -25,9 +25,9 @@ public class GlobalHandlerException {
                 .build();
     }
 
-    @ExceptionHandler(UsuarioDuplicadoException.class)
+    @ExceptionHandler(EntidadeDuplicadaException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
-    public RespostaError usuarioDuplicado(UsuarioDuplicadoException ex) {
+    public RespostaError usuarioDuplicado(EntidadeDuplicadaException ex) {
         return RespostaError.builder()
                 .status(HttpStatus.CONFLICT.value())
                 .erro(ex.getMessage())
@@ -35,9 +35,9 @@ public class GlobalHandlerException {
                 .build();
     }
 
-    @ExceptionHandler(UsuarioNaoEncontradoException.class)
+    @ExceptionHandler(EntidadeNaoEncontradaException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public RespostaError usuarioNaoEncontrado(UsuarioNaoEncontradoException ex) {
+    public RespostaError usuarioNaoEncontrado(EntidadeNaoEncontradaException ex) {
         return RespostaError.builder()
                 .status(HttpStatus.NOT_FOUND.value())
                 .erro(ex.getMessage())

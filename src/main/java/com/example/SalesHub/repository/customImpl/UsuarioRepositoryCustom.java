@@ -1,10 +1,10 @@
-package com.example.SalesHub.predicate;
+package com.example.SalesHub.repository.customImpl;
 
 import com.example.SalesHub.dto.filter.UsuarioFilter;
 import com.example.SalesHub.dto.projection.UsuarioProjection;
 import com.example.SalesHub.model.QUsuario;
 import com.example.SalesHub.model.Usuario;
-import com.example.SalesHub.repository.CustomUsuarioRepository;
+import com.example.SalesHub.repository.custom.CustomUsuarioRepository;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -32,13 +32,15 @@ public class UsuarioRepositoryCustom implements CustomUsuarioRepository {
                 .or(qUsuario.email.eq(usuario.getEmail()));
 
         if (usuario.getId() != null) {
-            builder.and(qUsuario.id.eq(usuario.getId()));
+            builder.and(qUsuario.id.notIn(usuario.getId()));
         }
 
         var consulta = query
                 .selectFrom(qUsuario)
                 .where(builder)
                 .fetchOne();
+
+        System.out.println(consulta);
 
         return Optional.ofNullable(consulta);
     }
@@ -103,6 +105,8 @@ public class UsuarioRepositoryCustom implements CustomUsuarioRepository {
                 .selectFrom(qUsuario)
                 .where(qUsuario.id.eq(usuarioId))
                 .fetchOne();
+
+        System.out.println(consulta);
 
         return Optional.ofNullable(consulta);
     }
