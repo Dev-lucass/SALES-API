@@ -4,8 +4,8 @@ import com.example.SalesHub.dto.filter.UsuarioFilter;
 import com.example.SalesHub.dto.projection.UsuarioProjection;
 import com.example.SalesHub.dto.request.UsuarioRequest;
 import com.example.SalesHub.dto.response.entity.UsuarioResponse;
-import com.example.SalesHub.exception.UsuarioDuplicadoException;
-import com.example.SalesHub.exception.UsuarioNaoEncontradoException;
+import com.example.SalesHub.exception.EntidadeDuplicadaException;
+import com.example.SalesHub.exception.EntidadeNaoEncontradaException;
 import com.example.SalesHub.mapper.UsuarioMapper;
 import com.example.SalesHub.model.Usuario;
 import com.example.SalesHub.repository.customImpl.UsuarioRepositoryCustom;
@@ -55,12 +55,12 @@ public class UsuarioService {
     private void validarDuplicidade(Usuario usuario) {
         customRepository.buscarUsuarioDuplicado(usuario)
                 .ifPresent(usuarioEncontrado -> {
-                    throw new UsuarioDuplicadoException("Usuario ja cadastrado");
+                    throw new EntidadeDuplicadaException("Usuario ja cadastrado");
                 });
     }
 
     private Usuario buscarUsuarioExistente(Long usuarioId) {
         return customRepository.buscarUsuarioExistente(usuarioId)
-                .orElseThrow(() -> new UsuarioNaoEncontradoException("Usuario não encontrado"));
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("Usuario não encontrado"));
     }
 }

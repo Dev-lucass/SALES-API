@@ -4,8 +4,8 @@ import com.example.SalesHub.dto.filter.UsuarioFilter;
 import com.example.SalesHub.dto.projection.UsuarioProjection;
 import com.example.SalesHub.dto.request.UsuarioRequest;
 import com.example.SalesHub.dto.response.entity.UsuarioResponse;
-import com.example.SalesHub.exception.UsuarioDuplicadoException;
-import com.example.SalesHub.exception.UsuarioNaoEncontradoException;
+import com.example.SalesHub.exception.EntidadeDuplicadaException;
+import com.example.SalesHub.exception.EntidadeNaoEncontradaException;
 import com.example.SalesHub.mapper.UsuarioMapper;
 import com.example.SalesHub.model.Usuario;
 import com.example.SalesHub.repository.customImpl.UsuarioRepositoryCustom;
@@ -77,7 +77,7 @@ class UsuarioServiceTest {
                 .thenReturn(Optional.of(new Usuario()));
 
         Assertions.assertThatThrownBy(() -> service.salvar(request))
-                .isInstanceOf(UsuarioDuplicadoException.class)
+                .isInstanceOf(EntidadeDuplicadaException.class)
                 .hasMessage("Usuario ja cadastrado");
 
         Mockito.verify(repository, Mockito.never()).save(Mockito.any());
@@ -133,7 +133,7 @@ class UsuarioServiceTest {
                 .thenReturn(Optional.empty());
 
         Assertions.assertThatThrownBy(() -> service.desativar(id))
-                .isInstanceOf(UsuarioNaoEncontradoException.class)
+                .isInstanceOf(EntidadeNaoEncontradaException.class)
                 .hasMessage("Usuario não encontrado");
     }
 
