@@ -32,13 +32,15 @@ public class UsuarioRepositoryCustom implements CustomUsuarioRepository {
                 .or(qUsuario.email.eq(usuario.getEmail()));
 
         if (usuario.getId() != null) {
-            builder.and(qUsuario.id.eq(usuario.getId()));
+            builder.and(qUsuario.id.notIn(usuario.getId()));
         }
 
         var consulta = query
                 .selectFrom(qUsuario)
                 .where(builder)
                 .fetchOne();
+
+        System.out.println(consulta);
 
         return Optional.ofNullable(consulta);
     }
@@ -103,6 +105,8 @@ public class UsuarioRepositoryCustom implements CustomUsuarioRepository {
                 .selectFrom(qUsuario)
                 .where(qUsuario.id.eq(usuarioId))
                 .fetchOne();
+
+        System.out.println(consulta);
 
         return Optional.ofNullable(consulta);
     }

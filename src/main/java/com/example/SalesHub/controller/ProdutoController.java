@@ -32,13 +32,13 @@ public class ProdutoController {
         return service.buscar(filter, pageable);
     }
 
-    @PutMapping("produtoId")
+    @PutMapping("{produtoId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public ProdutoResponse atualizar(@PathVariable Long produtoId, @RequestBody @Valid ProdutoRequest request) {
         return service.atualizar(produtoId, request);
     }
 
-    @DeleteMapping("produtoId")
+    @DeleteMapping("{produtoId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void desativar(@PathVariable Long produtoId) {
         service.desativar(produtoId);

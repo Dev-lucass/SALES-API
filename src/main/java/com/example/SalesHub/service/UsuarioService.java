@@ -35,13 +35,12 @@ public class UsuarioService {
     }
 
     public UsuarioResponse atualizar(Long usuarioId, UsuarioRequest request) {
-
-        validarDuplicidade(mapper.toEntity(request));
-
         var usuario = buscarUsuarioExistente(usuarioId);
         usuario.setNome(request.nome());
         usuario.setEmail(request.email());
         usuario.setSenha(request.senha());
+
+        validarDuplicidade(usuario);
 
         return mapper.toResponse(repository.save(usuario));
     }

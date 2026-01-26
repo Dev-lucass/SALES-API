@@ -31,7 +31,7 @@ public class ProdutoRepositoryCustom implements CustomProdutoRepository {
         builder.and(qProduto.nome.eq(produto.getNome()));
 
         if (produto.getId() != null) {
-            builder.and(qProduto.id.eq(produto.getId()));
+            builder.and(qProduto.id.notIn(produto.getId()));
         }
 
         var consulta = query
@@ -48,16 +48,18 @@ public class ProdutoRepositoryCustom implements CustomProdutoRepository {
         var builder = new BooleanBuilder();
         var qProduto = QProduto.produto;
 
+        builder.and(qProduto.ativo.eq(true));
+
         Optional.ofNullable(filter.id())
                 .ifPresent(id -> builder.and(qProduto.id.eq(id)));
 
         Optional.ofNullable(filter.nome())
                 .filter(nome -> !nome.isBlank())
-                .ifPresent(nome -> builder.and(qProduto.nome.startsWithIgnoreCase(nome)));
+                .ifPresent(nome -> builder.and(qProduto.nome.containsIgnoreCase(nome)));
 
         Optional.ofNullable(filter.descricao())
                 .filter(descricao -> !descricao.isBlank())
-                .ifPresent(descricao -> builder.and(qProduto.descricao.startsWithIgnoreCase(descricao)));
+                .ifPresent(descricao -> builder.and(qProduto.descricao.containsIgnoreCase(descricao)));
 
         Optional.ofNullable(filter.preco())
                 .ifPresent(preco -> builder.and(qProduto.preco.eq(preco)));
@@ -65,7 +67,7 @@ public class ProdutoRepositoryCustom implements CustomProdutoRepository {
         Optional.ofNullable(filter.dataInicial())
                 .ifPresent(inicio -> builder.and(qProduto.criadoEm.goe(inicio.atStartOfDay())));
 
-        Optional.ofNullable(filter.dataInicial())
+        Optional.ofNullable(filter.dataFinal())
                 .ifPresent(fim -> builder.and(qProduto.criadoEm.loe(fim.atTime(LocalTime.MAX))));
 
         var consulta = query

@@ -35,14 +35,14 @@ public class ProdutoService {
     }
 
     public ProdutoResponse atualizar(Long produtoId, ProdutoRequest request) {
-        validarDuplicidade(mapper.toEntity(request));
-
         var produto = buscarProdutoPeloId(produtoId);
         produto.setNome(request.nome());
         produto.setDescricao(request.descricao());
         produto.setPreco(request.preco());
 
-        return mapper.toResponse(produto);
+        validarDuplicidade(produto);
+
+        return mapper.toResponse(repository.save(produto));
     }
 
     @Transactional
