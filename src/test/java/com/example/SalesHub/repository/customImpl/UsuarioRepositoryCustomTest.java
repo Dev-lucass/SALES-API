@@ -3,6 +3,7 @@ package com.example.SalesHub.repository.customImpl;
 import com.example.SalesHub.configuration.JpaQueryFactoryConfig;
 import com.example.SalesHub.dto.filter.UsuarioFilter;
 import com.example.SalesHub.model.Usuario;
+import com.example.SalesHub.repository.customImpl.UsuarioRepositoryCustom;
 import jakarta.persistence.EntityManager;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
