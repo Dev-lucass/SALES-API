@@ -1,4 +1,4 @@
-package com.example.SalesHub.predicate;
+package com.example.SalesHub.repository.customImpl;
 
 import com.example.SalesHub.configuration.JpaQueryFactoryConfig;
 import com.example.SalesHub.dto.filter.UsuarioFilter;

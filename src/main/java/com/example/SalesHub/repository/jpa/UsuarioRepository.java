@@ -1,4 +1,4 @@
-package com.example.SalesHub.repository;
+package com.example.SalesHub.repository.jpa;
 
 import com.example.SalesHub.model.Usuario;
 import org.springframework.data.jpa.repository.JpaRepository;
