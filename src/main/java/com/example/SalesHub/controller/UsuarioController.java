@@ -4,7 +4,6 @@ import com.example.SalesHub.dto.filter.UsuarioFilter;
 import com.example.SalesHub.dto.projection.UsuarioProjection;
 import com.example.SalesHub.dto.request.UsuarioRequest;
 import com.example.SalesHub.dto.response.entity.UsuarioResponse;
-import com.example.SalesHub.model.Usuario;
 import com.example.SalesHub.service.UsuarioService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -30,13 +29,13 @@ public class UsuarioController {
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public Page<UsuarioProjection> buscar(@ModelAttribute UsuarioFilter filter, @PageableDefault Pageable pageable) {
-        return service.buscar(filter,pageable);
+        return service.buscar(filter, pageable);
     }
 
     @PutMapping("{usuarioId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public UsuarioResponse atualizar(@PathVariable Long usuarioId, @RequestBody @Valid UsuarioRequest request) {
-        return service.atualizar(usuarioId, request);
+    public void atualizar(@PathVariable Long usuarioId, @RequestBody @Valid UsuarioRequest request) {
+        service.atualizar(usuarioId, request);
     }
 
     @DeleteMapping("{usuarioId}")

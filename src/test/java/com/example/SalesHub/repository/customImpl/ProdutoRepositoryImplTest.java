@@ -4,7 +4,6 @@ import com.example.SalesHub.configuration.JpaQueryFactoryConfig;
 import com.example.SalesHub.dto.filter.ProdutoFilter;
 import com.example.SalesHub.model.Produto;
 import jakarta.persistence.EntityManager;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
@@ -13,17 +12,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.PageRequest;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 @DataJpaTest
-@Import({ProdutoRepositoryCustom.class, JpaQueryFactoryConfig.class})
+@Import({ProdutoRepositoryImpl.class, JpaQueryFactoryConfig.class})
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
-class ProdutoRepositoryCustomTest {
+class ProdutoRepositoryImplTest {
 
     @Autowired
-    private ProdutoRepositoryCustom repositoryCustom;
+    private ProdutoRepositoryImpl repositoryCustom;
 
     @Autowired
     private EntityManager entityManager;
@@ -38,6 +40,7 @@ class ProdutoRepositoryCustomTest {
                 .criadoEm(LocalDateTime.now())
                 .build();
         entityManager.persist(produto);
+        entityManager.flush();
     }
 
     @Test
@@ -48,8 +51,8 @@ class ProdutoRepositoryCustomTest {
 
         var resultado = repositoryCustom.buscarProdutoDuplicado(produtoDuplicado);
 
-        Assertions.assertThat(resultado).isPresent();
-        Assertions.assertThat(resultado.get().getNome()).isEqualTo("Teclado Gamer");
+        assertThat(resultado).isPresent();
+        assertThat(resultado.get().getNome()).isEqualTo("Teclado Gamer");
     }
 
     @Test
@@ -57,12 +60,13 @@ class ProdutoRepositoryCustomTest {
         var filter = ProdutoFilter.builder()
                 .nome("teclado")
                 .build();
+
         var pageable = PageRequest.of(0, 10);
 
         var resultado = repositoryCustom.buscarProdutos(filter, pageable);
 
-        Assertions.assertThat(resultado.getContent()).hasSize(1);
-        Assertions.assertThat(resultado.getContent().get(0).nome()).isEqualTo("Teclado Gamer");
+        assertThat(resultado.getContent()).hasSize(1);
+        assertThat(resultado.getContent().getFirst().nome()).isEqualTo("Teclado Gamer");
     }
 
     @Test
@@ -70,12 +74,13 @@ class ProdutoRepositoryCustomTest {
         var filter = ProdutoFilter.builder()
                 .preco(BigDecimal.valueOf(250.00))
                 .build();
+
         var pageable = PageRequest.of(0, 10);
 
         var resultado = repositoryCustom.buscarProdutos(filter, pageable);
 
-        Assertions.assertThat(resultado.getContent()).isNotEmpty();
-        Assertions.assertThat(resultado.getContent().get(0).preco())
+        assertThat(resultado.getContent()).isNotEmpty();
+        assertThat(resultado.getContent().getFirst().preco())
                 .usingComparator(BigDecimal::compareTo)
                 .isEqualTo(BigDecimal.valueOf(250.00));
     }
@@ -87,11 +92,12 @@ class ProdutoRepositoryCustomTest {
                 .dataInicial(hoje)
                 .dataFinal(hoje)
                 .build();
+
         var pageable = PageRequest.of(0, 10);
 
         var resultado = repositoryCustom.buscarProdutos(filter, pageable);
 
-        Assertions.assertThat(resultado.getContent()).isNotEmpty();
+        assertThat(resultado.getContent()).isNotEmpty();
     }
 
     @Test
@@ -102,19 +108,19 @@ class ProdutoRepositoryCustomTest {
                 .preco(BigDecimal.valueOf(1200.00))
                 .ativo(true)
                 .build();
+
         entityManager.persist(produto);
+        entityManager.flush();
 
-        var id = produto.getId();
+        var resultado = repositoryCustom.buscarProdutoExistente(produto.getId());
 
-        var resultado = repositoryCustom.buscarProdutoExistente(id);
-
-        Assertions.assertThat(resultado).isPresent();
-        Assertions.assertThat(resultado.get().getNome()).isEqualTo("Monitor 144hz");
+        assertThat(resultado).isPresent();
+        assertThat(resultado.get().getNome()).isEqualTo("Monitor 144hz");
     }
 
     @Test
     void deve_retornar_vazio_quando_produto_nao_existir() {
         var resultado = repositoryCustom.buscarProdutoExistente(999L);
-        Assertions.assertThat(resultado).isEmpty();
+        assertThat(resultado).isEmpty();
     }
 }

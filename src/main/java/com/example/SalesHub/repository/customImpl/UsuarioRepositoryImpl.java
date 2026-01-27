@@ -17,7 +17,7 @@ import java.time.LocalTime;
 import java.util.Optional;
 
 @Repository
-public class UsuarioRepositoryCustom implements CustomUsuarioRepository {
+public class UsuarioRepositoryImpl implements CustomUsuarioRepository {
 
     @Autowired
     private JPAQueryFactory query;
@@ -103,10 +103,11 @@ public class UsuarioRepositoryCustom implements CustomUsuarioRepository {
 
         var consulta = query
                 .selectFrom(qUsuario)
-                .where(qUsuario.id.eq(usuarioId))
+                .where(
+                        qUsuario.id.eq(usuarioId),
+                        qUsuario.ativo.isTrue()
+                )
                 .fetchOne();
-
-        System.out.println(consulta);
 
         return Optional.ofNullable(consulta);
     }

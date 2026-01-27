@@ -3,9 +3,7 @@ package com.example.SalesHub.repository.customImpl;
 import com.example.SalesHub.configuration.JpaQueryFactoryConfig;
 import com.example.SalesHub.dto.filter.UsuarioFilter;
 import com.example.SalesHub.model.Usuario;
-import com.example.SalesHub.repository.customImpl.UsuarioRepositoryCustom;
 import jakarta.persistence.EntityManager;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
@@ -16,14 +14,15 @@ import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.PageRequest;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
-@Import({UsuarioRepositoryCustom.class, JpaQueryFactoryConfig.class})
+@Import({UsuarioRepositoryImpl.class, JpaQueryFactoryConfig.class})
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
-class UsuarioRepositoryCustomTest {
+class UsuarioRepositoryImplTest {
 
     @Autowired
-    private UsuarioRepositoryCustom repositoryCustom;
+    private UsuarioRepositoryImpl repositoryCustom;
 
     @Autowired
     private EntityManager entityManager;
@@ -37,7 +36,10 @@ class UsuarioRepositoryCustomTest {
                 .ativo(true)
                 .criadoEm(LocalDateTime.now())
                 .build();
+
         entityManager.persist(usuario);
+        entityManager.flush();
+        entityManager.clear();
     }
 
     @Test
@@ -49,8 +51,8 @@ class UsuarioRepositoryCustomTest {
 
         var resultado = repositoryCustom.buscarUsuarioDuplicado(filtro);
 
-        Assertions.assertThat(resultado).isPresent();
-        Assertions.assertThat(resultado.get().getEmail()).isEqualTo("admin@email.com");
+        assertThat(resultado).isPresent();
+        assertThat(resultado.get().getEmail()).isEqualTo("admin@email.com");
     }
 
     @Test
@@ -58,12 +60,13 @@ class UsuarioRepositoryCustomTest {
         var filter = UsuarioFilter.builder()
                 .nome("Adm")
                 .build();
+
         var pageable = PageRequest.of(0, 10);
 
         var resultado = repositoryCustom.buscarUsuarios(filter, pageable);
 
-        Assertions.assertThat(resultado.getContent()).hasSize(1);
-        Assertions.assertThat(resultado.getContent().get(0).nome()).isEqualTo("Admin");
+        assertThat(resultado.getContent()).hasSize(1);
+        assertThat(resultado.getContent().get(0).nome()).isEqualTo("Admin");
     }
 
     @Test
@@ -73,11 +76,12 @@ class UsuarioRepositoryCustomTest {
                 .dataInicial(hoje)
                 .dataFinal(hoje)
                 .build();
+
         var pageable = PageRequest.of(0, 10);
 
         var resultado = repositoryCustom.buscarUsuarios(filter, pageable);
 
-        Assertions.assertThat(resultado.getContent()).isNotEmpty();
+        assertThat(resultado.getContent()).isNotEmpty();
     }
 
     @Test
@@ -86,20 +90,22 @@ class UsuarioRepositoryCustomTest {
                 .nome("Teste ID")
                 .email("testeid@email.com")
                 .senha("333")
+                .ativo(true)
                 .build();
+
         entityManager.persist(usuario);
+        entityManager.flush();
+        entityManager.clear();
 
-        var id = usuario.getId();
+        var resultado = repositoryCustom.buscarUsuarioExistente(usuario.getId());
 
-        var resultado = repositoryCustom.buscarUsuarioExistente(id);
-
-        Assertions.assertThat(resultado).isPresent();
-        Assertions.assertThat(resultado.get().getNome()).isEqualTo("Teste ID");
+        assertThat(resultado).isPresent();
+        assertThat(resultado.get().getNome()).isEqualTo("Teste ID");
     }
 
     @Test
     void deve_retornar_vazio_quando_usuario_nao_existir() {
         var resultado = repositoryCustom.buscarUsuarioExistente(999L);
-        Assertions.assertThat(resultado).isEmpty();
+        assertThat(resultado).isEmpty();
     }
 }
