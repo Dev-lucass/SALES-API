@@ -7,15 +7,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import java.math.BigDecimal;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(ProdutoController.class)
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
@@ -43,14 +45,14 @@ class ProdutoControllerTest {
                 .nome("Teclado")
                 .build();
 
-        Mockito.when(service.salvar(Mockito.any(ProdutoRequest.class))).thenReturn(response);
+        when(service.salvar(any(ProdutoRequest.class))).thenReturn(response);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/produto")
+        mockMvc.perform(post("/api/v1/produto")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andExpect(MockMvcResultMatchers.status().isCreated())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(1L))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.nome").value("Teclado"));
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").value(1L))
+                .andExpect(jsonPath("$.nome").value("Teclado"));
     }
 
     @Test
@@ -61,23 +63,23 @@ class ProdutoControllerTest {
                 .preco(BigDecimal.valueOf(-10))
                 .build();
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/produto")
+        mockMvc.perform(post("/api/v1/produto")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestInvalido)))
-                .andExpect(MockMvcResultMatchers.status().isBadRequest());
+                .andExpect(status().isBadRequest());
 
-        Mockito.verifyNoInteractions(service);
+        verifyNoInteractions(service);
     }
 
     @Test
     void deve_buscar_produtos_com_sucesso() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/produto")
+        mockMvc.perform(get("/api/v1/produto")
                         .param("nome", "Teclado")
                         .param("page", "0")
                         .param("size", "10"))
-                .andExpect(MockMvcResultMatchers.status().isOk());
+                .andExpect(status().isOk());
 
-        Mockito.verify(service).buscar(Mockito.any(), Mockito.any());
+        verify(service).buscar(any(), any());
     }
 
     @Test
@@ -89,12 +91,12 @@ class ProdutoControllerTest {
                 .preco(BigDecimal.valueOf(300.00))
                 .build();
 
-        mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/produto/{produtoId}", id)
+        mockMvc.perform(put("/api/v1/produto/{produtoId}", id)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andExpect(MockMvcResultMatchers.status().isNoContent());
+                .andExpect(status().isNoContent());
 
-        Mockito.verify(service).atualizar(Mockito.eq(id), Mockito.any(ProdutoRequest.class));
+        verify(service).atualizar(eq(id), any(ProdutoRequest.class));
     }
 
     @Test
@@ -102,19 +104,19 @@ class ProdutoControllerTest {
         var id = 1L;
         var requestInvalido = ProdutoRequest.builder().nome(" ").build();
 
-        mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/produto/{produtoId}", id)
+        mockMvc.perform(put("/api/v1/produto/{produtoId}", id)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestInvalido)))
-                .andExpect(MockMvcResultMatchers.status().isBadRequest());
+                .andExpect(status().isBadRequest());
     }
 
     @Test
     void deve_desativar_produto_com_sucesso() throws Exception {
         var id = 1L;
 
-        mockMvc.perform(MockMvcRequestBuilders.delete("/api/v1/produto/{produtoId}", id))
-                .andExpect(MockMvcResultMatchers.status().isNoContent());
+        mockMvc.perform(delete("/api/v1/produto/{produtoId}", id))
+                .andExpect(status().isNoContent());
 
-        Mockito.verify(service).desativar(id);
+        verify(service).desativar(id);
     }
 }

@@ -34,8 +34,8 @@ public class ProdutoController {
 
     @PutMapping("{produtoId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public ProdutoResponse atualizar(@PathVariable Long produtoId, @RequestBody @Valid ProdutoRequest request) {
-        return service.atualizar(produtoId, request);
+    public void atualizar(@PathVariable Long produtoId, @RequestBody @Valid ProdutoRequest request) {
+        service.atualizar(produtoId, request);
     }
 
     @DeleteMapping("{produtoId}")

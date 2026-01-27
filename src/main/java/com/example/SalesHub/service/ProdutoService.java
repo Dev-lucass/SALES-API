@@ -8,7 +8,7 @@ import com.example.SalesHub.exception.EntidadeDuplicadaException;
 import com.example.SalesHub.exception.EntidadeNaoEncontradaException;
 import com.example.SalesHub.mapper.ProdutoMapper;
 import com.example.SalesHub.model.Produto;
-import com.example.SalesHub.repository.customImpl.ProdutoRepositoryCustom;
+import com.example.SalesHub.repository.customImpl.ProdutoRepositoryImpl;
 import com.example.SalesHub.repository.jpa.ProdutoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -22,7 +22,7 @@ public class ProdutoService {
 
     private final ProdutoRepository repository;
     private final ProdutoMapper mapper;
-    private final ProdutoRepositoryCustom repositoryCustom;
+    private final ProdutoRepositoryImpl repositoryCustom;
 
     public ProdutoResponse salvar(ProdutoRequest request) {
         var produto = mapper.toEntity(request);
@@ -34,7 +34,7 @@ public class ProdutoService {
         return repositoryCustom.buscarProdutos(filter, pageable);
     }
 
-    public ProdutoResponse atualizar(Long produtoId, ProdutoRequest request) {
+    public void atualizar(Long produtoId, ProdutoRequest request) {
         var produto = buscarProdutoPeloId(produtoId);
         produto.setNome(request.nome());
         produto.setDescricao(request.descricao());
@@ -42,7 +42,7 @@ public class ProdutoService {
 
         validarDuplicidade(produto);
 
-        return mapper.toResponse(repository.save(produto));
+        repository.save(produto);
     }
 
     @Transactional
@@ -58,7 +58,7 @@ public class ProdutoService {
                 });
     }
 
-    private Produto buscarProdutoPeloId(Long produtoId) {
+    public Produto buscarProdutoPeloId(Long produtoId) {
         return repositoryCustom.buscarProdutoExistente(produtoId)
                 .orElseThrow(() -> new EntidadeNaoEncontradaException("Produto não encontrado"));
     }

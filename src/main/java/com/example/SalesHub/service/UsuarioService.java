@@ -8,7 +8,7 @@ import com.example.SalesHub.exception.EntidadeDuplicadaException;
 import com.example.SalesHub.exception.EntidadeNaoEncontradaException;
 import com.example.SalesHub.mapper.UsuarioMapper;
 import com.example.SalesHub.model.Usuario;
-import com.example.SalesHub.repository.customImpl.UsuarioRepositoryCustom;
+import com.example.SalesHub.repository.customImpl.UsuarioRepositoryImpl;
 import com.example.SalesHub.repository.jpa.UsuarioRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +21,7 @@ import org.springframework.stereotype.Service;
 public class UsuarioService {
 
     private final UsuarioMapper mapper;
-    private final UsuarioRepositoryCustom customRepository;
+    private final UsuarioRepositoryImpl customRepository;
     private final UsuarioRepository repository;
 
     public UsuarioResponse salvar(UsuarioRequest request) {
@@ -31,10 +31,10 @@ public class UsuarioService {
     }
 
     public Page<UsuarioProjection> buscar(UsuarioFilter filter, Pageable pageable) {
-        return customRepository.buscarUsuarios(filter,pageable);
+        return customRepository.buscarUsuarios(filter, pageable);
     }
 
-    public UsuarioResponse atualizar(Long usuarioId, UsuarioRequest request) {
+    public void atualizar(Long usuarioId, UsuarioRequest request) {
         var usuario = buscarUsuarioExistente(usuarioId);
         usuario.setNome(request.nome());
         usuario.setEmail(request.email());
@@ -42,7 +42,7 @@ public class UsuarioService {
 
         validarDuplicidade(usuario);
 
-        return mapper.toResponse(repository.save(usuario));
+        repository.save(usuario);
     }
 
     @Transactional

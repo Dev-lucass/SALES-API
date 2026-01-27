@@ -8,21 +8,23 @@ import com.example.SalesHub.exception.EntidadeDuplicadaException;
 import com.example.SalesHub.exception.EntidadeNaoEncontradaException;
 import com.example.SalesHub.mapper.UsuarioMapper;
 import com.example.SalesHub.model.Usuario;
-import com.example.SalesHub.repository.customImpl.UsuarioRepositoryCustom;
+import com.example.SalesHub.repository.customImpl.UsuarioRepositoryImpl;
 import com.example.SalesHub.repository.jpa.UsuarioRepository;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import java.util.List;
 import java.util.Optional;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
@@ -32,7 +34,7 @@ class UsuarioServiceTest {
     private UsuarioMapper mapper;
 
     @Mock
-    private UsuarioRepositoryCustom customRepository;
+    private UsuarioRepositoryImpl customRepository;
 
     @Mock
     private UsuarioRepository repository;
@@ -42,77 +44,87 @@ class UsuarioServiceTest {
 
     @Test
     void deve_salvar_usuario_com_sucesso() {
-        var request = new UsuarioRequest("Teste", "teste@email.com", "123");
-        var usuario = new Usuario();
+        var request = UsuarioRequest.builder()
+                .nome("Teste")
+                .email("teste@email.com")
+                .senha("123")
+                .build();
+
+        var usuario = Usuario.builder().nome("Teste").build();
         var response = UsuarioResponse.builder().id(1L).nome("Teste").build();
 
-        Mockito.when(mapper.toEntity(request)).thenReturn(usuario);
-        Mockito.when(customRepository.buscarUsuarioDuplicado(usuario)).thenReturn(Optional.empty());
-        Mockito.when(repository.save(usuario)).thenReturn(usuario);
-        Mockito.when(mapper.toResponse(usuario)).thenReturn(response);
+        when(mapper.toEntity(request)).thenReturn(usuario);
+        when(customRepository.buscarUsuarioDuplicado(usuario)).thenReturn(Optional.empty());
+        when(repository.save(usuario)).thenReturn(usuario);
+        when(mapper.toResponse(usuario)).thenReturn(response);
 
         var resultado = service.salvar(request);
 
-        Assertions.assertThat(resultado).isNotNull();
-        Assertions.assertThat(resultado.id()).isEqualTo(1L);
-        Mockito.verify(repository).save(usuario);
+        assertThat(resultado).isNotNull();
+        assertThat(resultado.id()).isEqualTo(1L);
+        verify(repository).save(usuario);
     }
 
     @Test
     void deve_lancar_excecao_ao_salvar_usuario_duplicado() {
-        var request = new UsuarioRequest("Teste", "teste@email.com", "123");
-        var usuario = new Usuario();
+        var request = UsuarioRequest.builder().email("teste@email.com").build();
+        var usuario = Usuario.builder().email("teste@email.com").build();
 
-        Mockito.when(mapper.toEntity(request)).thenReturn(usuario);
-        Mockito.when(customRepository.buscarUsuarioDuplicado(usuario)).thenReturn(Optional.of(new Usuario()));
+        when(mapper.toEntity(request)).thenReturn(usuario);
+        when(customRepository.buscarUsuarioDuplicado(usuario))
+                .thenReturn(Optional.of(Usuario.builder().build()));
 
-        Assertions.assertThatThrownBy(() -> service.salvar(request))
+        assertThatThrownBy(() -> service.salvar(request))
                 .isInstanceOf(EntidadeDuplicadaException.class)
                 .hasMessage("Usuario ja cadastrado");
 
-        Mockito.verify(repository, Mockito.never()).save(Mockito.any());
+        verify(repository, never()).save(any());
     }
 
     @Test
     void deve_buscar_usuarios_paginado() {
         var filter = UsuarioFilter.builder().build();
-        var pageable = Mockito.mock(Pageable.class);
+        var pageable = mock(Pageable.class);
         var pagedResponse = new PageImpl<UsuarioProjection>(List.of());
 
-        Mockito.when(customRepository.buscarUsuarios(filter, pageable)).thenReturn(pagedResponse);
+        when(customRepository.buscarUsuarios(filter, pageable)).thenReturn(pagedResponse);
 
         var resultado = service.buscar(filter, pageable);
 
-        Assertions.assertThat(resultado).isNotNull();
-        Mockito.verify(customRepository).buscarUsuarios(filter, pageable);
+        assertThat(resultado).isNotNull();
+        verify(customRepository).buscarUsuarios(filter, pageable);
     }
 
     @Test
     void deve_atualizar_usuario_com_sucesso() {
         var id = 1L;
-        var request = new UsuarioRequest("Novo Nome", "novo@email.com", "321");
-        var usuarioExistente = new Usuario();
-        var response = UsuarioResponse.builder().id(id).nome("Novo Nome").build();
+        var request = UsuarioRequest.builder()
+                .nome("Novo Nome")
+                .email("novo@email.com")
+                .senha("321")
+                .build();
 
-        Mockito.when(customRepository.buscarUsuarioExistente(id)).thenReturn(Optional.of(usuarioExistente));
-        Mockito.when(customRepository.buscarUsuarioDuplicado(usuarioExistente)).thenReturn(Optional.empty());
-        Mockito.when(repository.save(usuarioExistente)).thenReturn(usuarioExistente);
-        Mockito.when(mapper.toResponse(usuarioExistente)).thenReturn(response);
+        var usuarioExistente = Usuario.builder()
+                .id(id)
+                .email(request.email())
+                .build();
 
-        var resultado = service.atualizar(id, request);
+        when(customRepository.buscarUsuarioExistente(id)).thenReturn(Optional.of(usuarioExistente));
+        when(customRepository.buscarUsuarioDuplicado(usuarioExistente)).thenReturn(Optional.empty());
+        assertThat(usuarioExistente.getEmail()).isEqualTo("novo@email.com");
 
-        Assertions.assertThat(resultado.nome()).isEqualTo("Novo Nome");
-        Assertions.assertThat(usuarioExistente.getNome()).isEqualTo("Novo Nome");
-        Assertions.assertThat(usuarioExistente.getEmail()).isEqualTo("novo@email.com");
-        Mockito.verify(repository).save(usuarioExistente);
+        service.atualizar(id, request);
+
+        assertThat(usuarioExistente.getNome()).isEqualTo("Novo Nome");
+        verify(repository).save(usuarioExistente);
     }
 
     @Test
     void deve_lancar_excecao_ao_buscar_usuario_inexistente() {
         var id = 1L;
-        Mockito.when(customRepository.buscarUsuarioExistente(id)).thenReturn(Optional.empty());
+        when(customRepository.buscarUsuarioExistente(id)).thenReturn(Optional.empty());
 
-        Assertions.assertThatThrownBy(() -> service.desativar(id))
+        assertThatThrownBy(() -> service.desativar(id))
                 .isInstanceOf(EntidadeNaoEncontradaException.class)
                 .hasMessage("Usuario não encontrado");
     }
@@ -120,13 +132,12 @@ class UsuarioServiceTest {
     @Test
     void deve_desativar_usuario_com_sucesso() {
         var id = 1L;
-        var usuario = new Usuario();
-        usuario.setAtivo(true);
+        var usuario = Usuario.builder().ativo(true).build();
 
-        Mockito.when(customRepository.buscarUsuarioExistente(id)).thenReturn(Optional.of(usuario));
+        when(customRepository.buscarUsuarioExistente(id)).thenReturn(Optional.of(usuario));
 
         service.desativar(id);
 
-        Assertions.assertThat(usuario.getAtivo()).isFalse();
+        assertThat(usuario.getAtivo()).isFalse();
     }
 }
