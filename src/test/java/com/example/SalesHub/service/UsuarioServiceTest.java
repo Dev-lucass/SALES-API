@@ -108,11 +108,11 @@ class UsuarioServiceTest {
 
         when(customRepository.buscarUsuarioExistente(id)).thenReturn(Optional.of(usuarioExistente));
         when(customRepository.buscarUsuarioDuplicado(usuarioExistente)).thenReturn(Optional.empty());
+        assertThat(usuarioExistente.getEmail()).isEqualTo("novo@email.com");
 
         service.atualizar(id, request);
 
         assertThat(usuarioExistente.getNome()).isEqualTo("Novo Nome");
-        assertThat(usuarioExistente.getEmail()).isEqualTo("novo@email.com");
         verify(repository).save(usuarioExistente);
     }
 
