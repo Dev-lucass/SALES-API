@@ -19,8 +19,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+
 import java.util.List;
 import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -106,16 +108,16 @@ class UsuarioServiceTest {
 
         var usuarioExistente = Usuario.builder()
                 .id(id)
-                .email(request.email())
+                .email("antigo@email.com")
                 .build();
 
         when(customRepository.buscarUsuarioExistente(id)).thenReturn(Optional.of(usuarioExistente));
         when(customRepository.buscarUsuarioDuplicado(usuarioExistente)).thenReturn(Optional.empty());
-        assertThat(usuarioExistente.getEmail()).isEqualTo("novo@email.com");
 
         service.atualizar(id, request);
 
         assertThat(usuarioExistente.getNome()).isEqualTo("Novo Nome");
+        assertThat(usuarioExistente.getEmail()).isEqualTo("novo@email.com");
         verify(repository).save(usuarioExistente);
     }
 
@@ -139,5 +141,32 @@ class UsuarioServiceTest {
         service.desativar(id);
 
         assertThat(usuario.getAtivo()).isFalse();
+    }
+
+    @Test
+    void deve_mapear_usuario_para_response_com_sucesso() {
+        var usuario = Usuario.builder().id(1L).nome("Teste").build();
+        var response = UsuarioResponse.builder().id(1L).nome("Teste").build();
+
+        when(mapper.toResponse(usuario)).thenReturn(response);
+
+        var resultado = service.mapearUsuario(usuario);
+
+        assertThat(resultado).isNotNull();
+        assertThat(resultado.nome()).isEqualTo("Teste");
+        verify(mapper).toResponse(usuario);
+    }
+
+    @Test
+    void deve_buscar_usuario_existente_com_sucesso() {
+        var id = 1L;
+        var usuario = Usuario.builder().id(id).build();
+
+        when(customRepository.buscarUsuarioExistente(id)).thenReturn(Optional.of(usuario));
+
+        var resultado = service.buscarUsuarioExistente(id);
+
+        assertThat(resultado).isEqualTo(usuario);
+        verify(customRepository).buscarUsuarioExistente(id);
     }
 }

@@ -14,7 +14,6 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.PageRequest;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,7 +36,6 @@ class EstoqueRepositoryImplTest {
         produtoSalvo = Produto.builder()
                 .nome("Produto Base")
                 .descricao("Descricao Base")
-                .preco(BigDecimal.TEN)
                 .ativo(true)
                 .criadoEm(LocalDateTime.now())
                 .build();
@@ -101,7 +99,6 @@ class EstoqueRepositoryImplTest {
         var novoProduto = Produto.builder()
                 .nome("Novo Produto")
                 .descricao("Nova Descricao")
-                .preco(BigDecimal.ONE)
                 .ativo(true)
                 .criadoEm(LocalDateTime.now())
                 .build();

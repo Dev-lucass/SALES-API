@@ -25,30 +25,62 @@ public class ProdutoService {
     private final ProdutoRepositoryImpl repositoryCustom;
 
     public ProdutoResponse salvar(ProdutoRequest request) {
-        var produto = mapper.toEntity(request);
-        validarDuplicidade(produto);
-        return mapper.toResponse(repository.save(produto));
+
+        var produto = mapper.toEntity(
+                request
+        );
+
+        validarDuplicidade(
+                produto
+        );
+
+        return mapper.toResponse(
+                repository.save(produto)
+        );
     }
 
     public Page<ProdutoProjection> buscar(ProdutoFilter filter, Pageable pageable) {
-        return repositoryCustom.buscarProdutos(filter, pageable);
+        return repositoryCustom.buscarProdutos(
+                filter,
+                pageable
+        );
     }
 
     public void atualizar(Long produtoId, ProdutoRequest request) {
-        var produto = buscarProdutoPeloId(produtoId);
-        produto.setNome(request.nome());
-        produto.setDescricao(request.descricao());
-        produto.setPreco(request.preco());
 
-        validarDuplicidade(produto);
+        var produto = buscarProdutoPeloId(
+                produtoId
+        );
+
+        produto.setNome(
+                request.nome()
+        );
+
+        produto.setDescricao(
+                request.descricao()
+        );
+
+        validarDuplicidade(
+                produto
+        );
 
         repository.save(produto);
     }
 
     @Transactional
     public void desativar(Long produtoId) {
-        var produto = buscarProdutoPeloId(produtoId);
+
+        var produto = buscarProdutoPeloId(
+                produtoId
+        );
+
         produto.setAtivo(false);
+    }
+
+    public ProdutoResponse mapearProduto(Produto produto){
+        return mapper.toResponse(
+                produto
+        );
     }
 
     private void validarDuplicidade(Produto produto) {

@@ -2,13 +2,14 @@ package com.example.SalesHub.dto.filter;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Builder;
+
 import java.time.LocalDate;
 
 @Builder
-public record ProdutoFilter(
+public record VendaFilter(
         Long id,
-        String nome,
-        String descricao,
+        Long usuarioId,
+        Long valor,
         @JsonFormat(pattern = "dd/MM/yyyy")
         LocalDate dataInicial,
         @JsonFormat(pattern = "dd/MM/yyyy")

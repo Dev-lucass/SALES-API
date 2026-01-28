@@ -3,7 +3,6 @@ package com.example.SalesHub.service;
 import com.example.SalesHub.dto.filter.EstoqueFilter;
 import com.example.SalesHub.dto.projection.EstoqueProjection;
 import com.example.SalesHub.dto.request.EstoqueRequest;
-import com.example.SalesHub.dto.request.RetirarDoEstoqueRequest;
 import com.example.SalesHub.dto.response.entity.EstoqueResponse;
 import com.example.SalesHub.exception.EntidadeDuplicadaException;
 import com.example.SalesHub.exception.EntidadeNaoEncontradaException;
@@ -29,28 +28,54 @@ public class EstoqueService {
 
     public EstoqueResponse salvar(EstoqueRequest request) {
 
-        var produto = produtoService.buscarProdutoPeloId(request.produtoId());
-        var estoque = mapper.toEntity(request, produto);
+        var produto = produtoService.buscarProdutoPeloId(
+                request.produtoId()
+        );
 
-        validarDuplicidade(estoque);
+        var estoque = mapper.toEntity(
+                request, produto
+        );
 
-        return mapper.toResponse(repository.save(estoque));
+        validarDuplicidade(
+                estoque
+        );
+
+        return mapper.toResponse(
+                repository.save(estoque)
+        );
     }
 
     public Page<EstoqueProjection> buscar(EstoqueFilter filter, Pageable pageable) {
-        return repositoyCustom.buscarEstoques(filter, pageable);
+        return repositoyCustom.buscarEstoques(
+                filter, pageable
+        );
     }
 
     public void atualizar(Long estoqueId, EstoqueRequest request) {
 
-        var estoque = buscarPorId(estoqueId);
-        var produto = produtoService.buscarProdutoPeloId(request.produtoId());
+        var estoque = buscarPorId(
+                estoqueId
+        );
 
-        estoque.setProduto(produto);
-        estoque.setQuantidadeAtual(request.quantidade());
+        var produto = produtoService.buscarProdutoPeloId(
+                request.produtoId()
+        );
 
-        validarDuplicidade(estoque);
-        repository.save(estoque);
+        estoque.setProduto(
+                produto
+        );
+
+        estoque.setQuantidadeAtual(
+                request.quantidade()
+        );
+
+        validarDuplicidade(
+                estoque
+        );
+
+        repository.save(
+                estoque
+        );
     }
 
     /**
@@ -58,28 +83,37 @@ public class EstoqueService {
      */
     @Transactional
     public void desativar(Long estoqueId) {
-        var estoque = buscarPorId(estoqueId);
+
+        var estoque = buscarPorId(
+                estoqueId
+        );
+
         estoque.setAtivo(false);
     }
 
-    public EstoqueResponse pegarQuantidadeDoProdutoDoEstoque(RetirarDoEstoqueRequest request) {
+    public EstoqueResponse pegarQuantidadeDoProdutoDoEstoque(Long estoqueId, Long quantidadeParaRetirada) {
 
         validarQuantidadeDisponivel(
-                request
+                estoqueId,
+                quantidadeParaRetirada
         );
 
         var estoque = buscarPorId(
-                request.estoqueId()
+                estoqueId
         );
 
         var quantidadeAtualAtualizada = subtrairQuantidade(
                 estoque.getQuantidadeAtual(),
-                request.quantidade()
+                quantidadeParaRetirada
         );
 
-        estoque.setQuantidadeAtual(quantidadeAtualAtualizada);
+        estoque.setQuantidadeAtual(
+                quantidadeAtualAtualizada
+        );
 
-        return mapper.toResponse(repository.save(estoque));
+        return mapper.toResponse(
+                repository.save(estoque)
+        );
     }
 
     private void validarDuplicidade(Estoque estoque) {
@@ -99,10 +133,13 @@ public class EstoqueService {
         return quantidadeAtualEstoque - quantidadeRequisitadaParaRetirada;
     }
 
-    private void validarQuantidadeDisponivel(RetirarDoEstoqueRequest request) {
-        var estoque = buscarPorId(request.estoqueId());
+    private void validarQuantidadeDisponivel(Long estoqueId, Long quantidadeParaRetirada) {
 
-        if (estoque.getQuantidadeAtual() <= 0 || estoque.getQuantidadeAtual() - request.quantidade() <= 0)
+        var estoque = buscarPorId(
+                estoqueId
+        );
+
+        if (estoque.getQuantidadeAtual() <= 0 || estoque.getQuantidadeAtual() - quantidadeParaRetirada <= 0)
             throw new QuantidadeIndiposnivelException("Quantidade do produto indisponivel no estoque " + estoque.getId());
     }
 }

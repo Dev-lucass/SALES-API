@@ -10,6 +10,7 @@ import com.example.SalesHub.mapper.ProdutoMapper;
 import com.example.SalesHub.model.Produto;
 import com.example.SalesHub.repository.customImpl.ProdutoRepositoryImpl;
 import com.example.SalesHub.repository.jpa.ProdutoRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
@@ -19,9 +20,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import java.math.BigDecimal;
+
 import java.util.List;
 import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -43,17 +45,32 @@ class ProdutoServiceTest {
     @InjectMocks
     private ProdutoService service;
 
-    @Test
-    void deve_salvar_produto_com_sucesso() {
-        var request = ProdutoRequest.builder()
-                .nome("Mouse")
-                .descricao("Mouse Gamer")
-                .preco(BigDecimal.valueOf(100.00))
+    private Produto produto;
+    private ProdutoRequest request;
+    private ProdutoResponse response;
+
+    @BeforeEach
+    void setup() {
+        request = ProdutoRequest.builder()
+                .nome("Produto A")
+                .descricao("Descricao A")
                 .build();
 
-        var produto = Produto.builder().nome("Mouse").build();
-        var response = ProdutoResponse.builder().id(1L).nome("Mouse").build();
+        produto = Produto.builder()
+                .id(1L)
+                .nome("Produto A")
+                .descricao("Descricao A")
+                .ativo(true)
+                .build();
 
+        response = ProdutoResponse.builder()
+                .id(1L)
+                .nome("Produto A")
+                .build();
+    }
+
+    @Test
+    void deve_salvar_produto_com_sucesso() {
         when(mapper.toEntity(request)).thenReturn(produto);
         when(repositoryCustom.buscarProdutoDuplicado(produto)).thenReturn(Optional.empty());
         when(repository.save(produto)).thenReturn(produto);
@@ -68,12 +85,8 @@ class ProdutoServiceTest {
 
     @Test
     void deve_lancar_excecao_ao_salvar_produto_duplicado() {
-        var request = ProdutoRequest.builder().nome("Mouse").build();
-        var produto = Produto.builder().nome("Mouse").build();
-
         when(mapper.toEntity(request)).thenReturn(produto);
-        when(repositoryCustom.buscarProdutoDuplicado(produto))
-                .thenReturn(Optional.of(Produto.builder().build()));
+        when(repositoryCustom.buscarProdutoDuplicado(produto)).thenReturn(Optional.of(produto));
 
         assertThatThrownBy(() -> service.salvar(request))
                 .isInstanceOf(EntidadeDuplicadaException.class)
@@ -98,44 +111,57 @@ class ProdutoServiceTest {
 
     @Test
     void deve_atualizar_produto_com_sucesso() {
-        var id = 1L;
-        var request = ProdutoRequest.builder()
-                .nome("Novo Nome")
-                .descricao("Nova Descrição")
-                .preco(BigDecimal.valueOf(200.00))
+        var novoRequest = ProdutoRequest.builder()
+                .nome("Nome Editado")
+                .descricao("Descricao Editada")
                 .build();
 
-        var produtoExistente = Produto.builder().id(id).nome("Antigo").build();
+        when(repositoryCustom.buscarProdutoExistente(1L)).thenReturn(Optional.of(produto));
+        when(repositoryCustom.buscarProdutoDuplicado(produto)).thenReturn(Optional.empty());
 
-        when(repositoryCustom.buscarProdutoExistente(id)).thenReturn(Optional.of(produtoExistente));
-        when(repositoryCustom.buscarProdutoDuplicado(produtoExistente)).thenReturn(Optional.empty());
+        service.atualizar(1L, novoRequest);
 
-        service.atualizar(id, request);
+        assertThat(produto.getNome()).isEqualTo("Nome Editado");
+        assertThat(produto.getDescricao()).isEqualTo("Descricao Editada");
+        verify(repository).save(produto);
+    }
 
-        assertThat(produtoExistente.getNome()).isEqualTo("Novo Nome");
-        assertThat(produtoExistente.getDescricao()).isEqualTo("Nova Descrição");
-        verify(repository).save(produtoExistente);
+    @Test
+    void deve_desativar_produto_com_sucesso() {
+        when(repositoryCustom.buscarProdutoExistente(1L)).thenReturn(Optional.of(produto));
+
+        service.desativar(1L);
+
+        assertThat(produto.getAtivo()).isFalse();
+        verify(repositoryCustom).buscarProdutoExistente(1L);
     }
 
     @Test
     void deve_lancar_excecao_ao_buscar_produto_inexistente() {
-        var id = 1L;
-        when(repositoryCustom.buscarProdutoExistente(id)).thenReturn(Optional.empty());
+        when(repositoryCustom.buscarProdutoExistente(99L)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> service.desativar(id))
+        assertThatThrownBy(() -> service.buscarProdutoPeloId(99L))
                 .isInstanceOf(EntidadeNaoEncontradaException.class)
                 .hasMessage("Produto não encontrado");
     }
 
     @Test
-    void deve_desativar_produto_com_sucesso() {
-        var id = 1L;
-        var produto = Produto.builder().ativo(true).build();
+    void deve_mapear_produto_para_response_com_sucesso() {
+        when(mapper.toResponse(produto)).thenReturn(response);
 
-        when(repositoryCustom.buscarProdutoExistente(id)).thenReturn(Optional.of(produto));
+        var resultado = service.mapearProduto(produto);
 
-        service.desativar(id);
+        assertThat(resultado).isEqualTo(response);
+        verify(mapper).toResponse(produto);
+    }
 
-        assertThat(produto.getAtivo()).isFalse();
+    @Test
+    void deve_buscar_produto_pelo_id_com_sucesso() {
+        when(repositoryCustom.buscarProdutoExistente(1L)).thenReturn(Optional.of(produto));
+
+        var resultado = service.buscarProdutoPeloId(1L);
+
+        assertThat(resultado).isEqualTo(produto);
+        verify(repositoryCustom).buscarProdutoExistente(1L);
     }
 }

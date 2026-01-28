@@ -61,9 +61,6 @@ public class ProdutoRepositoryImpl implements CustomProdutoRepository {
                 .filter(descricao -> !descricao.isBlank())
                 .ifPresent(descricao -> builder.and(qProduto.descricao.containsIgnoreCase(descricao)));
 
-        Optional.ofNullable(filter.preco())
-                .ifPresent(preco -> builder.and(qProduto.preco.eq(preco)));
-
         Optional.ofNullable(filter.dataInicial())
                 .ifPresent(inicio -> builder.and(qProduto.criadoEm.goe(inicio.atStartOfDay())));
 
@@ -76,7 +73,6 @@ public class ProdutoRepositoryImpl implements CustomProdutoRepository {
                         qProduto.id,
                         qProduto.nome,
                         qProduto.descricao,
-                        qProduto.preco,
                         qProduto.criadoEm
                 ))
                 .from(qProduto)
