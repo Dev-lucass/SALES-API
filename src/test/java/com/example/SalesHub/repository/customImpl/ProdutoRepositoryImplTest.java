@@ -13,7 +13,6 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.PageRequest;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -35,7 +34,6 @@ class ProdutoRepositoryImplTest {
         var produto = Produto.builder()
                 .nome("Teclado Gamer")
                 .descricao("Teclado Mecânico RGB")
-                .preco(BigDecimal.valueOf(250.00))
                 .ativo(true)
                 .criadoEm(LocalDateTime.now())
                 .build();
@@ -70,22 +68,6 @@ class ProdutoRepositoryImplTest {
     }
 
     @Test
-    void deve_buscar_produtos_por_filtro_de_preco() {
-        var filter = ProdutoFilter.builder()
-                .preco(BigDecimal.valueOf(250.00))
-                .build();
-
-        var pageable = PageRequest.of(0, 10);
-
-        var resultado = repositoryCustom.buscarProdutos(filter, pageable);
-
-        assertThat(resultado.getContent()).isNotEmpty();
-        assertThat(resultado.getContent().getFirst().preco())
-                .usingComparator(BigDecimal::compareTo)
-                .isEqualTo(BigDecimal.valueOf(250.00));
-    }
-
-    @Test
     void deve_buscar_produtos_por_intervalo_de_datas() {
         var hoje = LocalDate.now();
         var filter = ProdutoFilter.builder()
@@ -105,7 +87,6 @@ class ProdutoRepositoryImplTest {
         var produto = Produto.builder()
                 .nome("Monitor 144hz")
                 .descricao("Monitor Gamer")
-                .preco(BigDecimal.valueOf(1200.00))
                 .ativo(true)
                 .build();
 

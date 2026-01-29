@@ -12,7 +12,6 @@ public class ProdutoMapper {
         return Produto.builder()
                 .nome(request.nome())
                 .descricao(request.descricao())
-                .preco(request.preco())
                 .build();
     }
 
@@ -21,7 +20,6 @@ public class ProdutoMapper {
                 .id(produto.getId())
                 .nome(produto.getNome())
                 .descricao(produto.getDescricao())
-                .preco(produto.getPreco())
                 .criadoEm(produto.getCriadoEm())
                 .build();
     }

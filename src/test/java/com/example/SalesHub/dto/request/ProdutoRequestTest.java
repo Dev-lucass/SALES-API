@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
-import java.math.BigDecimal;
 
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 class ProdutoRequestTest {
@@ -21,7 +20,6 @@ class ProdutoRequestTest {
         var produtoRequest = ProdutoRequest.builder()
                 .nome("Teclado Mecânico")
                 .descricao("Teclado RGB switch blue")
-                .preco(BigDecimal.valueOf(250.00))
                 .build();
 
         Assertions.assertThat(produtoRequest)
@@ -29,9 +27,6 @@ class ProdutoRequestTest {
                 .satisfies(saida -> {
                     Assertions.assertThat(saida.nome()).isEqualTo("Teclado Mecânico");
                     Assertions.assertThat(saida.descricao()).isEqualTo("Teclado RGB switch blue");
-                    Assertions.assertThat(saida.preco())
-                            .usingComparator(BigDecimal::compareTo)
-                            .isEqualTo(BigDecimal.valueOf(250.00));
                 });
     }
 
@@ -40,7 +35,6 @@ class ProdutoRequestTest {
         var produtoRequest = ProdutoRequest.builder()
                 .nome(null)
                 .descricao(null)
-                .preco(null)
                 .build();
 
         Assertions.assertThat(produtoRequest)
@@ -48,7 +42,6 @@ class ProdutoRequestTest {
                 .satisfies(saida -> {
                     Assertions.assertThat(saida.nome()).isNull();
                     Assertions.assertThat(saida.descricao()).isNull();
-                    Assertions.assertThat(saida.preco()).isNull();
                 });
     }
 
@@ -59,7 +52,6 @@ class ProdutoRequestTest {
         var produtoRequest = ProdutoRequest.builder()
                 .nome(nomeInvalido)
                 .descricao("Descrição válida")
-                .preco(BigDecimal.TEN)
                 .build();
 
         var violacao = validar.validate(produtoRequest);
@@ -77,7 +69,6 @@ class ProdutoRequestTest {
         var produtoRequest = ProdutoRequest.builder()
                 .nome("Nome Válido")
                 .descricao(descricaoInvalida)
-                .preco(BigDecimal.TEN)
                 .build();
 
         var violacao = validar.validate(produtoRequest);
@@ -86,37 +77,5 @@ class ProdutoRequestTest {
                 .isNotEmpty()
                 .extracting(saida -> saida.getPropertyPath().toString())
                 .containsOnly("descricao");
-    }
-
-    @Test
-    void deve_validar_preco_nulo() {
-        var produtoRequest = ProdutoRequest.builder()
-                .nome("Nome Válido")
-                .descricao("Descrição Válida")
-                .preco(null)
-                .build();
-
-        var violacao = validar.validate(produtoRequest);
-
-        Assertions.assertThat(violacao)
-                .isNotEmpty()
-                .extracting(saida -> saida.getPropertyPath().toString())
-                .containsOnly("preco");
-    }
-
-    @Test
-    void deve_validar_preco_negativo() {
-        var produtoRequest = ProdutoRequest.builder()
-                .nome("Nome Válido")
-                .descricao("Descrição Válida")
-                .preco(BigDecimal.valueOf(-1.00))
-                .build();
-
-        var violacao = validar.validate(produtoRequest);
-
-        Assertions.assertThat(violacao)
-                .isNotEmpty()
-                .extracting(saida -> saida.getPropertyPath().toString())
-                .containsOnly("preco");
     }
 }

@@ -25,30 +25,66 @@ public class UsuarioService {
     private final UsuarioRepository repository;
 
     public UsuarioResponse salvar(UsuarioRequest request) {
-        var usuario = mapper.toEntity(request);
-        validarDuplicidade(usuario);
-        return mapper.toResponse(repository.save(usuario));
+
+        var usuario = mapper.toEntity(
+                request
+        );
+
+        validarDuplicidade(
+                usuario
+        );
+
+        return mapper.toResponse(
+                repository.save(usuario)
+        );
     }
 
     public Page<UsuarioProjection> buscar(UsuarioFilter filter, Pageable pageable) {
-        return customRepository.buscarUsuarios(filter, pageable);
+        return customRepository.buscarUsuarios(
+                filter,
+                pageable
+        );
     }
 
     public void atualizar(Long usuarioId, UsuarioRequest request) {
-        var usuario = buscarUsuarioExistente(usuarioId);
-        usuario.setNome(request.nome());
-        usuario.setEmail(request.email());
-        usuario.setSenha(request.senha());
 
-        validarDuplicidade(usuario);
+        var usuario = buscarUsuarioExistente(
+                usuarioId
+        );
+
+        usuario.setNome(
+                request.nome()
+        );
+
+        usuario.setEmail(
+                request.email()
+        );
+
+        usuario.setSenha(
+                request.senha()
+        );
+
+        validarDuplicidade(
+                usuario
+        );
 
         repository.save(usuario);
     }
 
     @Transactional
     public void desativar(Long usuarioId) {
-        var usuario = buscarUsuarioExistente(usuarioId);
+
+        var usuario = buscarUsuarioExistente(
+                usuarioId
+        );
+
         usuario.setAtivo(false);
+    }
+
+    public UsuarioResponse mapearUsuario(Usuario usuario) {
+        return mapper.toResponse(
+                usuario
+        );
     }
 
     private void validarDuplicidade(Usuario usuario) {
@@ -58,7 +94,7 @@ public class UsuarioService {
                 });
     }
 
-    private Usuario buscarUsuarioExistente(Long usuarioId) {
+    public Usuario buscarUsuarioExistente(Long usuarioId) {
         return customRepository.buscarUsuarioExistente(usuarioId)
                 .orElseThrow(() -> new EntidadeNaoEncontradaException("Usuario não encontrado"));
     }

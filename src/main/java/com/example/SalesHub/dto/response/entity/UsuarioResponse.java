@@ -5,7 +5,8 @@ import lombok.Builder;
 import java.time.LocalDateTime;
 
 @Builder
-public record UsuarioResponse(Long id,
+public record UsuarioResponse(
+                              Long id,
                               String nome,
                               String email,
                               @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss")

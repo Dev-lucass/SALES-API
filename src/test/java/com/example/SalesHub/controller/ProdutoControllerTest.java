@@ -12,12 +12,13 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import java.math.BigDecimal;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(ProdutoController.class)
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
@@ -37,7 +38,6 @@ class ProdutoControllerTest {
         var request = ProdutoRequest.builder()
                 .nome("Teclado")
                 .descricao("Teclado Mecânico")
-                .preco(BigDecimal.valueOf(250.00))
                 .build();
 
         var response = ProdutoResponse.builder()
@@ -60,7 +60,6 @@ class ProdutoControllerTest {
         var requestInvalido = ProdutoRequest.builder()
                 .nome("")
                 .descricao("")
-                .preco(BigDecimal.valueOf(-10))
                 .build();
 
         mockMvc.perform(post("/api/v1/produto")
@@ -88,7 +87,6 @@ class ProdutoControllerTest {
         var request = ProdutoRequest.builder()
                 .nome("Novo Nome")
                 .descricao("Nova Descrição")
-                .preco(BigDecimal.valueOf(300.00))
                 .build();
 
         mockMvc.perform(put("/api/v1/produto/{produtoId}", id)
