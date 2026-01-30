@@ -17,7 +17,7 @@ public record VendaRequest(
         @Min(1) @NotNull
         Long quantidade,
         @Min(0) @NotNull
-        BigDecimal preco,
+        BigDecimal valor,
         @Min(0) @NotNull @Max(100)
         Double desconto) {}
 

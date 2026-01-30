@@ -96,7 +96,7 @@ class VendaServiceTest {
         var resultado = service.salvar(request);
 
         assertThat(resultado).isNotNull();
-        verify(venda).aplicarDesconto(request.preco(), request.desconto());
+        verify(venda).aplicarDesconto(request.valor(), request.desconto());
         verify(repository).save(venda);
         verify(estoqueService).pegarQuantidadeDoProdutoDoEstoque(1L, 2L);
     }

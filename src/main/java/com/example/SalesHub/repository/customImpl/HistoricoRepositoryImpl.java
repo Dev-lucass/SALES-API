@@ -1,10 +1,7 @@
 package com.example.SalesHub.repository.customImpl;
 
 import com.example.SalesHub.dto.filter.HistoricoFilter;
-import com.example.SalesHub.dto.projection.EstoqueProjection;
 import com.example.SalesHub.dto.projection.HistoricoProjection;
-import com.example.SalesHub.dto.projection.ProdutoProjection;
-import com.example.SalesHub.dto.projection.UsuarioProjection;
 import com.example.SalesHub.model.QHistorico;
 import com.example.SalesHub.repository.custom.CustomHistoricoRepository;
 import com.querydsl.core.BooleanBuilder;
@@ -15,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
+
 import java.util.Optional;
 
 @Repository
@@ -42,35 +40,13 @@ public class HistoricoRepositoryImpl implements CustomHistoricoRepository {
                 .ifPresent(estoqueId -> builder.and(qHistorico.estoque.id.eq(estoqueId)));
 
         var consulta = query
-                .select(Projections.constructor(
-
-                                HistoricoProjection.class,
-                                qHistorico.id,
-
-                                Projections.constructor(
-                                        UsuarioProjection.class,
-                                        qHistorico.usuario.id,
-                                        qHistorico.usuario.nome,
-                                        qHistorico.usuario.email,
-                                        qHistorico.usuario.criadoEm
-                                ),
-                                Projections.constructor(
-                                        ProdutoProjection.class,
-                                        qHistorico.produto.id,
-                                        qHistorico.produto.nome,
-                                        qHistorico.produto.descricao,
-                                        qHistorico.produto.criadoEm
-                                ),
-                                Projections.constructor(
-                                        EstoqueProjection.class,
-                                        qHistorico.estoque.id,
-                                        qHistorico.estoque.produto.id,
-                                        qHistorico.estoque.quantidadeInicial,
-                                        qHistorico.estoque.quantidadeAtual
-                                ),
-
-                                qHistorico.criadoEm
-                        ))
+                .select(Projections.constructor(HistoricoProjection.class,
+                        qHistorico.id,
+                        qHistorico.usuario.id,
+                        qHistorico.produto.id,
+                        qHistorico.estoque.id,
+                        qHistorico.criadoEm
+                ))
                 .from(qHistorico)
                 .where(builder)
                 .offset(pageable.getOffset())

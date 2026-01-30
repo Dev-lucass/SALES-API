@@ -139,7 +139,7 @@ public class EstoqueService {
                 estoqueId
         );
 
-        if (estoque.getQuantidadeAtual() <= 0 || estoque.getQuantidadeAtual() - quantidadeParaRetirada <= 0)
-            throw new QuantidadeIndiposnivelException("Quantidade do produto indisponivel no estoque " + estoque.getId());
+        if (estoque.getQuantidadeAtual() <= 0 || estoque.getQuantidadeAtual() - quantidadeParaRetirada < 0)
+            throw new QuantidadeIndiposnivelException("Quantidade do produto indisponivel no estoque");
     }
 }

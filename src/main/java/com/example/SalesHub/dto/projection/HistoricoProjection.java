@@ -6,9 +6,10 @@ import java.time.LocalDateTime;
 
 @Builder
 public record HistoricoProjection(
-  Long id,
-  UsuarioProjection usuario,
-  ProdutoProjection produto,
-  EstoqueProjection estoque,
-  @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss")
-  LocalDateTime criadoEm) {}
+        Long id,
+        Long usuarioId,
+        Long produtoId,
+        Long estoqueId,
+        @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss")
+        LocalDateTime criadoEm) {
+}

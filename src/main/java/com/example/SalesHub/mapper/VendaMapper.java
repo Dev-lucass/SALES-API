@@ -8,7 +8,6 @@ import com.example.SalesHub.dto.response.entity.VendaResponse;
 import com.example.SalesHub.model.Produto;
 import com.example.SalesHub.model.Usuario;
 import com.example.SalesHub.model.Venda;
-import com.example.SalesHub.model.enums.StatusPagamento;
 import org.springframework.stereotype.Component;
 import java.time.LocalDateTime;
 
@@ -18,9 +17,10 @@ public class VendaMapper {
     public Venda toEntity(VendaRequest request, Usuario usuario, Produto produto) {
         return Venda.builder()
                 .usuario(usuario)
-                .valor(request.preco())
+                .valor(request.valor())
                 .produto(produto)
-                .statusPagamento(StatusPagamento.PENDENTE)
+                .valor(request.valor())
+                .quantidade(request.quantidade())
                 .dataVenda(LocalDateTime.now())
                 .build();
     }
@@ -31,7 +31,9 @@ public class VendaMapper {
                 .usuario(usuarioResponse)
                 .produto(produtoResponse)
                 .estoque(estoqueResponse)
-                .statusPagamento(venda.getStatusPagamento())
+                .valor(venda.getValor())
+                .quantidade(venda.getQuantidade())
+                .valorTotalVendas(venda.getValorTotalVendas())
                 .dataVenda(venda.getDataVenda())
                 .build();
     }
