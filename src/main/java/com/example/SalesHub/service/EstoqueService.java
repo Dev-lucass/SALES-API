@@ -124,7 +124,7 @@ public class EstoqueService {
                 );
     }
 
-    private Estoque buscarPorId(Long estoqueId) {
+    public Estoque buscarPorId(Long estoqueId) {
         return repositoyCustom.buscarEstoqueExistente(estoqueId)
                 .orElseThrow(() -> new EntidadeNaoEncontradaException("Estoque não encontrado"));
     }

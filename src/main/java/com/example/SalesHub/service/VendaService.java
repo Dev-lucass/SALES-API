@@ -4,7 +4,11 @@ import com.example.SalesHub.dto.filter.VendaFilter;
 import com.example.SalesHub.dto.projection.VendaProjection;
 import com.example.SalesHub.dto.request.VendaRequest;
 import com.example.SalesHub.dto.response.entity.VendaResponse;
+import com.example.SalesHub.mapper.HistoricoMapper;
 import com.example.SalesHub.mapper.VendaMapper;
+import com.example.SalesHub.model.Estoque;
+import com.example.SalesHub.model.Produto;
+import com.example.SalesHub.model.Usuario;
 import com.example.SalesHub.repository.customImpl.VendaRepositoryImpl;
 import com.example.SalesHub.repository.jpa.VendaRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +26,7 @@ public class VendaService {
     private final UsuarioService usuarioService;
     private final ProdutoService produtoService;
     private final EstoqueService estoqueService;
+    private final HistoricoService historicoService;
 
     public VendaResponse salvar(VendaRequest request) {
 
@@ -31,6 +36,10 @@ public class VendaService {
 
         var produto = produtoService.buscarProdutoPeloId(
                 request.produtoId()
+        );
+
+        var estoque = estoqueService.buscarPorId(
+                request.estoqueId()
         );
 
         var estoqueResponse = estoqueService.pegarQuantidadeDoProdutoDoEstoque(
@@ -49,12 +58,26 @@ public class VendaService {
                 request.desconto()
         );
 
+        salvarHistorico(
+                usuario,
+                produto,
+                estoque
+        );
+
         return mapper.toReponse(
                 repository.save(venda),
                 usuarioService.mapearUsuario(usuario),
                 produtoService.mapearProduto(produto),
                 estoqueResponse
         );
+    }
+
+    private void salvarHistorico(Usuario usuario, Produto produto, Estoque estoque){
+            historicoService.salvar(
+                    usuario,
+                    produto,
+                    estoque
+            );
     }
 
     public Page<VendaProjection> buscar(VendaFilter filter, Pageable pageable) {
