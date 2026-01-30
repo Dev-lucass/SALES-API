@@ -15,7 +15,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
 import java.math.BigDecimal;
 
 @Service
@@ -60,13 +59,9 @@ public class VendaService {
                 request.desconto()
         );
 
-        System.out.println(venda.getValorTotalVendas());
-
         setarTotalDeVendas(
                 venda
         );
-
-        System.out.println(venda.getValorTotalVendas());
 
         salvarHistorico(
                 usuario,

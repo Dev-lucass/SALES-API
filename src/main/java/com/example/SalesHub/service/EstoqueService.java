@@ -78,9 +78,6 @@ public class EstoqueService {
         );
     }
 
-    /**
-     * @apiNote so pode desativar se nao estiver em uso, verificar se esta em uso quando criar historico
-     */
     @Transactional
     public void desativar(Long estoqueId) {
 
