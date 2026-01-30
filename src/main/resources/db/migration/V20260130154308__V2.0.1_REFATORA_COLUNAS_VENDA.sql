@@ -1,0 +1,2 @@
+ALTER TABLE venda DROP COLUMN statusPagamento;
+ALTER TABLE venda ADD COLUMN quantidade BIGINT NOT NULL DEFAULT 0;

@@ -3,16 +3,18 @@ package com.example.SalesHub.repository.customImpl;
 import com.example.SalesHub.dto.filter.VendaFilter;
 import com.example.SalesHub.dto.projection.VendaProjection;
 import com.example.SalesHub.model.QVenda;
+import com.example.SalesHub.model.Venda;
 import com.example.SalesHub.repository.custom.CustomVendaRepository;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.MathExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
-
+import java.math.BigDecimal;
 import java.time.LocalTime;
 import java.util.Optional;
 
@@ -24,6 +26,7 @@ public class VendaRepositoryImpl implements CustomVendaRepository {
 
     @Override
     public Page<VendaProjection> buscarVendas(VendaFilter filter, Pageable pageable) {
+
         var qVenda = QVenda.venda;
         var builder = new BooleanBuilder();
 
@@ -35,6 +38,12 @@ public class VendaRepositoryImpl implements CustomVendaRepository {
 
         Optional.ofNullable(filter.valor())
                 .ifPresent(valor -> builder.and(qVenda.valor.goe(valor)));
+
+        Optional.ofNullable(filter.quantidade())
+                .ifPresent(quantidade -> builder.and(qVenda.quantidade.eq(quantidade)));
+
+        Optional.ofNullable(filter.valorTotalVendas())
+                .ifPresent(valor -> builder.and(qVenda.quantidade.eq(valor.longValue())));
 
         Optional.ofNullable(filter.dataInicial())
                 .ifPresent(inicio -> builder.and(qVenda.dataVenda.goe(inicio.atStartOfDay())));
@@ -48,7 +57,7 @@ public class VendaRepositoryImpl implements CustomVendaRepository {
                         qVenda.usuario.id,
                         qVenda.usuario.nome,
                         qVenda.valor,
-                        qVenda.statusPagamento,
+                        MathExpressions.round(qVenda.valor.sum(), 2).castToNum(BigDecimal.class),
                         qVenda.dataVenda
                 ))
                 .from(qVenda)
@@ -59,6 +68,18 @@ public class VendaRepositoryImpl implements CustomVendaRepository {
                 .fetch();
 
         return PageableExecutionUtils.getPage(consulta, pageable, () -> buscarQuantidadeDeVendas(builder));
+    }
+
+    @Override
+    public BigDecimal buscarValorTotalDeVendas(Venda venda) {
+
+        var qVenda = QVenda.venda;
+
+        return query
+                .select(qVenda.valor.sum())
+                .from(qVenda)
+                .where(qVenda.usuario.id.eq(venda.getUsuario().getId()))
+                .fetchOne();
     }
 
     private Long buscarQuantidadeDeVendas(BooleanBuilder builder) {

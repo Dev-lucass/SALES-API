@@ -78,9 +78,6 @@ public class EstoqueService {
         );
     }
 
-    /**
-     * @apiNote so pode desativar se nao estiver em uso, verificar se esta em uso quando criar historico
-     */
     @Transactional
     public void desativar(Long estoqueId) {
 
@@ -124,7 +121,7 @@ public class EstoqueService {
                 );
     }
 
-    private Estoque buscarPorId(Long estoqueId) {
+    public Estoque buscarPorId(Long estoqueId) {
         return repositoyCustom.buscarEstoqueExistente(estoqueId)
                 .orElseThrow(() -> new EntidadeNaoEncontradaException("Estoque não encontrado"));
     }
@@ -139,7 +136,7 @@ public class EstoqueService {
                 estoqueId
         );
 
-        if (estoque.getQuantidadeAtual() <= 0 || estoque.getQuantidadeAtual() - quantidadeParaRetirada <= 0)
-            throw new QuantidadeIndiposnivelException("Quantidade do produto indisponivel no estoque " + estoque.getId());
+        if (estoque.getQuantidadeAtual() <= 0 || estoque.getQuantidadeAtual() - quantidadeParaRetirada < 0)
+            throw new QuantidadeIndiposnivelException("Quantidade do produto indisponivel no estoque");
     }
 }

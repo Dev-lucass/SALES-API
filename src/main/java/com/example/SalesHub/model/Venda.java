@@ -31,9 +31,11 @@ public class Venda {
     @Column(nullable = false)
     private BigDecimal valor;
 
-    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private StatusPagamento statusPagamento;
+    private Long quantidade;
+
+    @Column(nullable = false)
+    private BigDecimal valorTotalVendas;
 
     @Column(nullable = false)
     private LocalDateTime dataVenda;
@@ -41,7 +43,7 @@ public class Venda {
     @PrePersist
     private void prePersistir() {
         if (valor == null) valor = BigDecimal.ZERO;
-        if (statusPagamento == null) statusPagamento = StatusPagamento.PENDENTE;
+        if (valorTotalVendas == null) valorTotalVendas = valor;
         if (dataVenda == null) dataVenda = LocalDateTime.now();
     }
 
