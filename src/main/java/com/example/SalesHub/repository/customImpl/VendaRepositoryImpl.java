@@ -57,6 +57,7 @@ public class VendaRepositoryImpl implements CustomVendaRepository {
                         qVenda.usuario.id,
                         qVenda.usuario.nome,
                         qVenda.valor,
+                        qVenda.quantidade,
                         MathExpressions.round(qVenda.valor.sum(), 2).castToNum(BigDecimal.class),
                         qVenda.dataVenda
                 ))
@@ -79,7 +80,7 @@ public class VendaRepositoryImpl implements CustomVendaRepository {
                 .select(qVenda.valor.sum())
                 .from(qVenda)
                 .where(qVenda.usuario.id.eq(venda.getUsuario().getId()))
-                .fetchOne();
+                .fetchFirst();
     }
 
     private Long buscarQuantidadeDeVendas(BooleanBuilder builder) {
@@ -88,6 +89,6 @@ public class VendaRepositoryImpl implements CustomVendaRepository {
                 .select(qVenda.id.countDistinct())
                 .from(qVenda)
                 .where(builder)
-                .fetchOne();
+                .fetchFirst();
     }
 }

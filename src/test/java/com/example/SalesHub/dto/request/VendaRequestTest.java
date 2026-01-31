@@ -25,7 +25,7 @@ class VendaRequestTest {
                 .produtoId(1L)
                 .estoqueId(1L)
                 .quantidade(10L)
-                .preco(BigDecimal.valueOf(100.0))
+                .valor(BigDecimal.valueOf(100.0))
                 .desconto(5.0)
                 .build();
     }
@@ -44,7 +44,7 @@ class VendaRequestTest {
                 .produtoId(1L)
                 .estoqueId(1L)
                 .quantidade(10L)
-                .preco(BigDecimal.TEN)
+                .valor(BigDecimal.TEN)
                 .desconto(0.0)
                 .build();
 
@@ -60,7 +60,7 @@ class VendaRequestTest {
                 .produtoId(id)
                 .estoqueId(1L)
                 .quantidade(10L)
-                .preco(BigDecimal.TEN)
+                .valor(BigDecimal.TEN)
                 .desconto(0.0)
                 .build();
 
@@ -76,7 +76,7 @@ class VendaRequestTest {
                 .produtoId(1L)
                 .estoqueId(1L)
                 .quantidade(valor)
-                .preco(BigDecimal.TEN)
+                .valor(BigDecimal.TEN)
                 .desconto(0.0)
                 .build();
 
@@ -91,7 +91,7 @@ class VendaRequestTest {
                 .produtoId(1L)
                 .estoqueId(1L)
                 .quantidade(10L)
-                .preco(new BigDecimal("-1.0"))
+                .valor(new BigDecimal("-1.0"))
                 .desconto(0.0)
                 .build();
 
@@ -107,7 +107,7 @@ class VendaRequestTest {
                 .produtoId(1L)
                 .estoqueId(1L)
                 .quantidade(10L)
-                .preco(BigDecimal.TEN)
+                .valor(BigDecimal.TEN)
                 .desconto(valor)
                 .build();
 
@@ -123,7 +123,7 @@ class VendaRequestTest {
                 .produtoId(1L)
                 .estoqueId(id)
                 .quantidade(10L)
-                .preco(BigDecimal.TEN)
+                .valor(BigDecimal.TEN)
                 .desconto(0.0)
                 .build();
 

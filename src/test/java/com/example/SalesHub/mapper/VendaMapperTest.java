@@ -18,6 +18,7 @@ import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
+
 import java.time.temporal.ChronoUnit;
 
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
@@ -33,7 +34,7 @@ class VendaMapperTest {
     @Test
     void deve_mapear_venda_request_para_entidade_venda() {
         var request = VendaRequest.builder()
-                .preco(new BigDecimal("150.00"))
+                .valor(new BigDecimal("150.00"))
                 .build();
 
         var usuario = Usuario.builder().id(1L).nome("Teste").build();
@@ -44,7 +45,6 @@ class VendaMapperTest {
         assertThat(entity.getUsuario()).isEqualTo(usuario);
         assertThat(entity.getProduto()).isEqualTo(produto);
         assertThat(entity.getValor()).isEqualTo(new BigDecimal("150.00"));
-        assertThat(entity.getStatusPagamento()).isEqualTo(StatusPagamento.PENDENTE);
         assertThat(entity.getDataVenda()).isCloseTo(LocalDateTime.now(), within(1, ChronoUnit.SECONDS));
     }
 
@@ -53,7 +53,6 @@ class VendaMapperTest {
         var dataFixa = LocalDateTime.now();
         var venda = Venda.builder()
                 .id(100L)
-                .statusPagamento(StatusPagamento.CONCLUIDO)
                 .dataVenda(dataFixa)
                 .build();
 
@@ -67,7 +66,6 @@ class VendaMapperTest {
         assertThat(response.usuario()).isEqualTo(usuarioRes);
         assertThat(response.produto()).isEqualTo(produtoRes);
         assertThat(response.estoque()).isEqualTo(estoqueRes);
-        assertThat(response.statusPagamento()).isEqualTo(StatusPagamento.CONCLUIDO);
         assertThat(response.dataVenda()).isEqualTo(dataFixa);
     }
 

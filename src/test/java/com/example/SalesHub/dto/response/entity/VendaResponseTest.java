@@ -1,12 +1,13 @@
 package com.example.SalesHub.dto.response.entity;
 
-import com.example.SalesHub.model.enums.StatusPagamento;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
@@ -22,7 +23,6 @@ class VendaResponseTest {
                 .id(1L)
                 .valor(new BigDecimal("100.00"))
                 .quantidade(2L)
-                .statusPagamento(StatusPagamento.PENDENTE)
                 .dataVenda(agora)
                 .build();
     }
@@ -32,7 +32,6 @@ class VendaResponseTest {
         assertThat(response.id()).isEqualTo(1L);
         assertThat(response.valor()).isEqualTo(new BigDecimal("100.00"));
         assertThat(response.quantidade()).isEqualTo(2L);
-        assertThat(response.statusPagamento()).isEqualTo(StatusPagamento.PENDENTE);
         assertThat(response.dataVenda()).isEqualTo(agora);
     }
 
