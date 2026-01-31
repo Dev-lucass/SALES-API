@@ -40,8 +40,6 @@ public class UsuarioRepositoryImpl implements CustomUsuarioRepository {
                 .where(builder)
                 .fetchOne();
 
-        System.out.println(consulta);
-
         return Optional.ofNullable(consulta);
     }
 
@@ -93,6 +91,7 @@ public class UsuarioRepositoryImpl implements CustomUsuarioRepository {
         return query
                 .select(qUsuario.id.countDistinct())
                 .from(qUsuario)
+                .where(qUsuario.ativo.isTrue())
                 .fetchOne();
     }
 

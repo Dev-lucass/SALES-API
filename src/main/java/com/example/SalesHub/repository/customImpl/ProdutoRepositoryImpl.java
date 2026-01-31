@@ -91,6 +91,7 @@ public class ProdutoRepositoryImpl implements CustomProdutoRepository {
         return query
                 .select(qProduto.id.countDistinct())
                 .from(qProduto)
+                .where(qProduto.ativo.isTrue())
                 .fetchOne();
     }
 

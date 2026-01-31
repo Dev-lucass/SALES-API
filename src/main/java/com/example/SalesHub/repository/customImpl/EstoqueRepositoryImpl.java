@@ -84,6 +84,7 @@ public class EstoqueRepositoryImpl implements CustomEstoqueRepository {
         return query
                 .select(qEstoque.id.countDistinct())
                 .from(qEstoque)
+                .where(qEstoque.ativo.isTrue())
                 .fetchOne();
     }
 
