@@ -16,8 +16,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+
 import java.math.BigDecimal;
 import java.util.List;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -48,7 +50,7 @@ class VendaControlllerTest {
                 .produtoId(1L)
                 .estoqueId(1L)
                 .quantidade(5L)
-                .preco(new BigDecimal("100.0"))
+                .valor(new BigDecimal("100.0"))
                 .desconto(10.0)
                 .build();
 
@@ -103,7 +105,7 @@ class VendaControlllerTest {
                 .produtoId(1L)
                 .estoqueId(1L)
                 .quantidade(0L)
-                .preco(BigDecimal.TEN)
+                .valor(BigDecimal.TEN)
                 .desconto(0.0)
                 .build();
 

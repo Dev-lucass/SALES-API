@@ -30,13 +30,13 @@ public class EstoqueRepositoryImpl implements CustomEstoqueRepository {
         builder.and(qEstoque.produto.eq(estoque.getProduto()));
 
         if (estoque.getId() != null) {
-            builder.and(qEstoque.id.notIn(estoque.getId()));
+            builder.and(qEstoque.id.ne(estoque.getId()));
         }
 
         var consulta =  query
                 .selectFrom(qEstoque)
                 .where(builder)
-                .fetchOne();
+                .fetchFirst();
 
         return Optional.ofNullable(consulta);
     }
@@ -79,12 +79,14 @@ public class EstoqueRepositoryImpl implements CustomEstoqueRepository {
     }
 
     private Long buscarQuantidadeDeEstoque(){
+
         var qEstoque = QEstoque.estoque;
 
         return query
                 .select(qEstoque.id.countDistinct())
                 .from(qEstoque)
-                .fetchOne();
+                .where(qEstoque.ativo.isTrue())
+                .fetchFirst();
     }
 
     @Override
@@ -98,7 +100,7 @@ public class EstoqueRepositoryImpl implements CustomEstoqueRepository {
                         qEstoque.id.eq(estoqueId),
                         qEstoque.ativo.isTrue()
                 )
-                .fetchOne();
+                .fetchFirst();
 
         return Optional.ofNullable(consulta);
     }

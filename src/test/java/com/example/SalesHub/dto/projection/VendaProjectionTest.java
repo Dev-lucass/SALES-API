@@ -1,6 +1,5 @@
 package com.example.SalesHub.dto.projection;
 
-import com.example.SalesHub.model.enums.StatusPagamento;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
@@ -26,7 +25,6 @@ class VendaProjectionTest {
                 .usuarioId(1L)
                 .usuario("João")
                 .valor(new BigDecimal("250.50"))
-                .statusPagamento(StatusPagamento.CONCLUIDO)
                 .dataVenda(dataReferencia)
                 .build();
     }
@@ -37,7 +35,6 @@ class VendaProjectionTest {
         assertThat(projection.usuarioId()).isEqualTo(1L);
         assertThat(projection.usuario()).isEqualTo("João");
         assertThat(projection.valor()).isEqualByComparingTo("250.50");
-        assertThat(projection.statusPagamento()).isEqualTo(StatusPagamento.CONCLUIDO);
         assertThat(projection.dataVenda()).isEqualTo(dataReferencia);
     }
 
@@ -48,13 +45,11 @@ class VendaProjectionTest {
                 .usuarioId(null)
                 .usuario(null)
                 .valor(null)
-                .statusPagamento(null)
                 .build();
 
         assertThat(projectionNula.usuarioId()).isNull();
         assertThat(projectionNula.usuario()).isNull();
         assertThat(projectionNula.valor()).isNull();
-        assertThat(projectionNula.statusPagamento()).isNull();
     }
 
     @Test

@@ -31,13 +31,13 @@ public class ProdutoRepositoryImpl implements CustomProdutoRepository {
         builder.and(qProduto.nome.eq(produto.getNome()));
 
         if (produto.getId() != null) {
-            builder.and(qProduto.id.notIn(produto.getId()));
+            builder.and(qProduto.id.ne(produto.getId()));
         }
 
         var consulta = query
                 .selectFrom(qProduto)
                 .where(builder)
-                .fetchOne();
+                .fetchFirst();
 
         return Optional.ofNullable(consulta);
     }
@@ -86,12 +86,14 @@ public class ProdutoRepositoryImpl implements CustomProdutoRepository {
     }
 
     private Long buscarQuantidadeDeProdutos() {
+
         var qProduto = QProduto.produto;
 
         return query
                 .select(qProduto.id.countDistinct())
                 .from(qProduto)
-                .fetchOne();
+                .where(qProduto.ativo.isTrue())
+                .fetchFirst();
     }
 
     @Override
@@ -105,7 +107,7 @@ public class ProdutoRepositoryImpl implements CustomProdutoRepository {
                         qProduto.id.eq(produtoId),
                         qProduto.ativo.isTrue()
                 )
-                .fetchOne();
+                .fetchFirst();
 
         return Optional.ofNullable(consulta);
     }

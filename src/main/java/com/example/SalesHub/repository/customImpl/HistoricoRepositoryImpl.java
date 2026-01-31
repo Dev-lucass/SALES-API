@@ -64,6 +64,6 @@ public class HistoricoRepositoryImpl implements CustomHistoricoRepository {
         return query
                 .select(qHistorico.id.countDistinct())
                 .from(qHistorico)
-                .fetchOne();
+                .fetchFirst();
     }
 }
