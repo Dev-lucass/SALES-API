@@ -12,6 +12,7 @@ import com.example.SalesHub.model.Estoque;
 import com.example.SalesHub.model.Produto;
 import com.example.SalesHub.model.Usuario;
 import com.example.SalesHub.model.Venda;
+import com.example.SalesHub.model.enums.Funcao;
 import com.example.SalesHub.repository.customImpl.VendaRepositoryImpl;
 import com.example.SalesHub.repository.jpa.VendaRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -38,22 +39,16 @@ class VendaServiceTest {
 
     @Mock
     private VendaMapper mapper;
-
     @Mock
     private VendaRepository repository;
-
     @Mock
     private VendaRepositoryImpl customRepository;
-
     @Mock
     private UsuarioService usuarioService;
-
     @Mock
     private ProdutoService produtoService;
-
     @Mock
     private EstoqueService estoqueService;
-
     @Mock
     private HistoricoService historicoService;
 
@@ -76,9 +71,13 @@ class VendaServiceTest {
                 .desconto(10.0)
                 .build();
 
-        usuario = Usuario.builder().id(1L).build();
+        usuario = Usuario.builder()
+                .id(1L)
+                .funcao(Funcao.VENDEDOR) // Adicionado para passar na validação
+                .build();
+
         produto = Produto.builder().id(1L).build();
-        venda = spy(Venda.builder().id(1L).build());
+        venda = spy(Venda.builder().id(1L).valor(new BigDecimal("90.00")).build());
     }
 
     @Test
@@ -94,6 +93,7 @@ class VendaServiceTest {
         when(estoqueService.buscarPorId(1L)).thenReturn(estoque);
         when(estoqueService.pegarQuantidadeDoProdutoDoEstoque(1L, 2L)).thenReturn(estoqueRes);
         when(mapper.toEntity(request, usuario, produto)).thenReturn(venda);
+        when(customRepository.buscarValorTotalDeVendas(any())).thenReturn(BigDecimal.ZERO);
         when(repository.save(venda)).thenReturn(venda);
         when(usuarioService.mapearUsuario(usuario)).thenReturn(usuarioRes);
         when(produtoService.mapearProduto(produto)).thenReturn(produtoRes);
@@ -124,9 +124,12 @@ class VendaServiceTest {
     @Test
     void deve_garantir_que_o_fluxo_de_estoque_ocorra_antes_da_criacao_da_venda() {
         var estoque = mock(Estoque.class);
+        var estoqueRes = EstoqueResponse.builder().build();
+
         when(usuarioService.buscarUsuarioExistente(any())).thenReturn(usuario);
         when(produtoService.buscarProdutoPeloId(any())).thenReturn(produto);
         when(estoqueService.buscarPorId(any())).thenReturn(estoque);
+        when(estoqueService.pegarQuantidadeDoProdutoDoEstoque(any(), any())).thenReturn(estoqueRes);
         when(mapper.toEntity(any(), any(), any())).thenReturn(venda);
 
         service.salvar(request);
