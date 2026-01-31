@@ -57,6 +57,7 @@ public class VendaRepositoryImpl implements CustomVendaRepository {
                         qVenda.usuario.id,
                         qVenda.usuario.nome,
                         qVenda.valor,
+                        qVenda.quantidade,
                         MathExpressions.round(qVenda.valor.sum(), 2).castToNum(BigDecimal.class),
                         qVenda.dataVenda
                 ))

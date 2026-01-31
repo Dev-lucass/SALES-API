@@ -8,6 +8,7 @@ import com.example.SalesHub.dto.response.entity.ProdutoResponse;
 import com.example.SalesHub.dto.response.entity.UsuarioResponse;
 import com.example.SalesHub.dto.response.entity.VendaResponse;
 import com.example.SalesHub.mapper.VendaMapper;
+import com.example.SalesHub.model.Estoque;
 import com.example.SalesHub.model.Produto;
 import com.example.SalesHub.model.Usuario;
 import com.example.SalesHub.model.Venda;
@@ -53,6 +54,9 @@ class VendaServiceTest {
     @Mock
     private EstoqueService estoqueService;
 
+    @Mock
+    private HistoricoService historicoService;
+
     @InjectMocks
     private VendaService service;
 
@@ -68,7 +72,7 @@ class VendaServiceTest {
                 .produtoId(1L)
                 .estoqueId(1L)
                 .quantidade(2L)
-                .preco(new BigDecimal("100.00"))
+                .valor(new BigDecimal("100.00"))
                 .desconto(10.0)
                 .build();
 
@@ -79,6 +83,7 @@ class VendaServiceTest {
 
     @Test
     void deve_salvar_venda_com_sucesso_executando_todas_as_etapas() {
+        var estoque = mock(Estoque.class);
         var estoqueRes = EstoqueResponse.builder().id(1L).build();
         var usuarioRes = UsuarioResponse.builder().id(1L).build();
         var produtoRes = ProdutoResponse.builder().id(1L).build();
@@ -86,6 +91,7 @@ class VendaServiceTest {
 
         when(usuarioService.buscarUsuarioExistente(1L)).thenReturn(usuario);
         when(produtoService.buscarProdutoPeloId(1L)).thenReturn(produto);
+        when(estoqueService.buscarPorId(1L)).thenReturn(estoque);
         when(estoqueService.pegarQuantidadeDoProdutoDoEstoque(1L, 2L)).thenReturn(estoqueRes);
         when(mapper.toEntity(request, usuario, produto)).thenReturn(venda);
         when(repository.save(venda)).thenReturn(venda);
@@ -97,8 +103,8 @@ class VendaServiceTest {
 
         assertThat(resultado).isNotNull();
         verify(venda).aplicarDesconto(request.valor(), request.desconto());
+        verify(historicoService).salvar(usuario, produto, estoque);
         verify(repository).save(venda);
-        verify(estoqueService).pegarQuantidadeDoProdutoDoEstoque(1L, 2L);
     }
 
     @Test
@@ -117,8 +123,10 @@ class VendaServiceTest {
 
     @Test
     void deve_garantir_que_o_fluxo_de_estoque_ocorra_antes_da_criacao_da_venda() {
+        var estoque = mock(Estoque.class);
         when(usuarioService.buscarUsuarioExistente(any())).thenReturn(usuario);
         when(produtoService.buscarProdutoPeloId(any())).thenReturn(produto);
+        when(estoqueService.buscarPorId(any())).thenReturn(estoque);
         when(mapper.toEntity(any(), any(), any())).thenReturn(venda);
 
         service.salvar(request);
@@ -126,6 +134,7 @@ class VendaServiceTest {
         var inOrder = inOrder(usuarioService, produtoService, estoqueService, mapper);
         inOrder.verify(usuarioService).buscarUsuarioExistente(any());
         inOrder.verify(produtoService).buscarProdutoPeloId(any());
+        inOrder.verify(estoqueService).buscarPorId(any());
         inOrder.verify(estoqueService).pegarQuantidadeDoProdutoDoEstoque(any(), any());
         inOrder.verify(mapper).toEntity(any(), any(), any());
     }

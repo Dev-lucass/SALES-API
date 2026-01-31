@@ -5,7 +5,6 @@ import com.example.SalesHub.dto.filter.VendaFilter;
 import com.example.SalesHub.model.Produto;
 import com.example.SalesHub.model.Usuario;
 import com.example.SalesHub.model.Venda;
-import com.example.SalesHub.model.enums.StatusPagamento;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayNameGeneration;
@@ -46,7 +45,7 @@ class VendaRepositoryImplTest {
 
         var produtoSalvo = Produto.builder()
                 .nome("Produto Teste")
-                .descricao("Descrição obrigatória")
+                .descricao("Descricao")
                 .ativo(true)
                 .criadoEm(LocalDateTime.now())
                 .build();
@@ -55,8 +54,9 @@ class VendaRepositoryImplTest {
         var venda = Venda.builder()
                 .usuario(usuarioSalvo)
                 .produto(produtoSalvo)
-                .valor(new BigDecimal("150.00")) // Sincronizado com a Entidade
-                .statusPagamento(StatusPagamento.PENDENTE)
+                .quantidade(10L)
+                .valor(new BigDecimal("150.00"))
+                .valorTotalVendas(new BigDecimal("150.00"))
                 .dataVenda(LocalDateTime.now())
                 .build();
 
@@ -66,33 +66,34 @@ class VendaRepositoryImplTest {
     }
 
     @Test
-    void deve_buscar_vendas_paginadas_com_sucesso() {
+    void deve_buscar_vendas_paginadas_com_quantidade_e_projecao_correta() {
         var filter = VendaFilter.builder().build();
         var pageable = PageRequest.of(0, 10);
 
         var resultado = repositoryCustom.buscarVendas(filter, pageable);
 
         assertThat(resultado.getContent()).isNotEmpty();
-        assertThat(resultado.getTotalElements()).isGreaterThanOrEqualTo(1);
 
         var projecao = resultado.getContent().getFirst();
 
+        assertThat(projecao.id()).isNotNull();
         assertThat(projecao.usuarioId()).isEqualTo(usuarioSalvo.getId());
+        assertThat(projecao.usuario()).isEqualTo("Usuario Teste");
         assertThat(projecao.valor()).isEqualByComparingTo("150.00");
-        assertThat(projecao.statusPagamento()).isEqualTo(StatusPagamento.PENDENTE);
+        assertThat(projecao.quantidade()).isEqualTo(10L);
+        assertThat(projecao.valorTotalVendas()).isNotNull();
     }
 
     @Test
-    void deve_retornar_pagina_vazia_quando_nao_houver_vendas_cadastradas() {
-        // Limpeza explícita para garantir vacuidade
-        entityManager.createQuery("DELETE FROM Venda").executeUpdate();
-
-        var filter = VendaFilter.builder().build();
+    void deve_filtrar_por_quantidade_especifica() {
+        var filter = VendaFilter.builder()
+                .quantidade(10L)
+                .build();
         var pageable = PageRequest.of(0, 10);
 
         var resultado = repositoryCustom.buscarVendas(filter, pageable);
 
-        assertThat(resultado.getContent()).isEmpty();
-        assertThat(resultado.getTotalElements()).isZero();
+        assertThat(resultado.getContent()).hasSize(1);
+        assertThat(resultado.getContent().getFirst().quantidade()).isEqualTo(10L);
     }
 }
