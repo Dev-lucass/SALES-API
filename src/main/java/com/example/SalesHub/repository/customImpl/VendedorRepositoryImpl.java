@@ -32,7 +32,7 @@ public class VendedorRepositoryImpl implements CustomVendedorRepository {
         builder.and(qVendedor.usuario.eq(vendedor.getUsuario()));
 
         if (vendedor.getId() != null) {
-            builder.and(qVendedor.id.eq(vendedor.getId()));
+            builder.and(qVendedor.id.notIn(vendedor.getId()));
         }
 
         var consulta = query
@@ -80,6 +80,7 @@ public class VendedorRepositoryImpl implements CustomVendedorRepository {
                         qVendedor.criadoEm
                 ))
                 .from(qVendedor)
+                .where(builder)
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .orderBy(qVendedor.id.asc())
