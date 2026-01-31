@@ -73,6 +73,7 @@ public class VendedorRepositoryImpl implements CustomVendedorRepository {
                                 qVendedor.usuario.id,
                                 qVendedor.usuario.nome,
                                 qVendedor.usuario.email,
+                                qVendedor.usuario.funcao,
                                 qVendedor.usuario.criadoEm
                         ),
                         qVendedor.dataNascimento,
