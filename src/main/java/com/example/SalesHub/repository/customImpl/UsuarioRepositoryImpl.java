@@ -13,6 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
+
 import java.time.LocalTime;
 import java.util.Optional;
 
@@ -62,17 +63,21 @@ public class UsuarioRepositoryImpl implements CustomUsuarioRepository {
                 .filter(email -> !email.isBlank())
                 .ifPresent(email -> buillder.and(qUsuario.email.startsWithIgnoreCase(email)));
 
+        Optional.ofNullable(filter.funcao())
+                .ifPresent(funcao -> buillder.and(qUsuario.funcao.eq(funcao)));
+
         Optional.ofNullable(filter.dataInicial())
-                .ifPresent(data -> buillder.and(qUsuario.criadoEm.goe(data.atStartOfDay())));
+                .ifPresent(inicio -> buillder.and(qUsuario.criadoEm.goe(inicio.atStartOfDay())));
 
         Optional.ofNullable(filter.dataFinal())
-                .ifPresent(data -> buillder.and(qUsuario.criadoEm.loe(data.atTime(LocalTime.MAX))));
+                .ifPresent(fim -> buillder.and(qUsuario.criadoEm.loe(fim.atTime(LocalTime.MAX))));
 
         var consulta = query
                 .select(Projections.constructor(UsuarioProjection.class,
                         qUsuario.id,
                         qUsuario.nome,
                         qUsuario.email,
+                        qUsuario.funcao,
                         qUsuario.criadoEm
                 ))
                 .from(qUsuario)

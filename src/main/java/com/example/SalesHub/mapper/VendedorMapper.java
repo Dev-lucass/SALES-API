@@ -1,6 +1,7 @@
 package com.example.SalesHub.mapper;
 
 import com.example.SalesHub.dto.request.VendedorRequest;
+import com.example.SalesHub.dto.response.entity.UsuarioResponse;
 import com.example.SalesHub.dto.response.entity.VendedorReponse;
 import com.example.SalesHub.model.Usuario;
 import com.example.SalesHub.model.Vendedor;
@@ -19,10 +20,10 @@ public class VendedorMapper {
                 .build();
     }
 
-    public VendedorReponse toResponse(Vendedor vendedor){
+    public VendedorReponse toResponse(Vendedor vendedor, UsuarioResponse usuario){
         return VendedorReponse.builder()
                 .id(vendedor.getId())
-                .usuario(vendedor.getUsuario())
+                .usuario(usuario)
                 .dataNascimento(vendedor.getDataNascimento())
                 .criadoEm(vendedor.getCriadoEm())
                 .build();

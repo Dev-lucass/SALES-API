@@ -1,10 +1,7 @@
 package com.example.SalesHub.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.Builder;
 import org.hibernate.validator.constraints.br.CPF;
 import java.time.LocalDate;
@@ -15,6 +12,5 @@ public record VendedorRequest(
         Long usuarioId,
         @NotBlank @CPF
         String cpf,
-        @NotBlank @Size(min = 8,max = 10)
-        @JsonFormat(pattern = "dd/MM/yyyy")
+        @NotNull  @Past @JsonFormat(pattern = "dd/MM/yyyy")
         LocalDate dataNascimento) {}

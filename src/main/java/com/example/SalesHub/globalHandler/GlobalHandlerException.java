@@ -4,6 +4,7 @@ import com.example.SalesHub.dto.response.error.CamposInvalidosRespostaError;
 import com.example.SalesHub.dto.response.error.RespostaError;
 import com.example.SalesHub.exception.EntidadeDuplicadaException;
 import com.example.SalesHub.exception.EntidadeNaoEncontradaException;
+import com.example.SalesHub.exception.FuncaoInvalidaException;
 import com.example.SalesHub.exception.QuantidadeIndiposnivelException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -51,6 +52,16 @@ public class GlobalHandlerException {
     public RespostaError quantidadeIndisponivel(QuantidadeIndiposnivelException ex) {
         return RespostaError.builder()
                 .status(HttpStatus.UNPROCESSABLE_ENTITY.value())
+                .erro(ex.getMessage())
+                .data(LocalDateTime.now())
+                .build();
+    }
+
+    @ExceptionHandler(FuncaoInvalidaException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public RespostaError funcaoInvalida(FuncaoInvalidaException ex) {
+        return RespostaError.builder()
+                .status(HttpStatus.FORBIDDEN.value())
                 .erro(ex.getMessage())
                 .data(LocalDateTime.now())
                 .build();
