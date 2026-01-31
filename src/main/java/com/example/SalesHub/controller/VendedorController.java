@@ -2,6 +2,7 @@ package com.example.SalesHub.controller;
 
 import com.example.SalesHub.dto.filter.VendedorFilter;
 import com.example.SalesHub.dto.projection.VendedorProjection;
+import com.example.SalesHub.dto.request.VendedorReativacaoRequest;
 import com.example.SalesHub.dto.request.VendedorRequest;
 import com.example.SalesHub.dto.response.entity.VendedorReponse;
 import com.example.SalesHub.service.VendedorService;
@@ -22,19 +23,31 @@ public class VendedorController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public VendedorReponse salvar(@RequestBody @Valid VendedorRequest request) {return service.salvar(request);}
+    public VendedorReponse salvar(@RequestBody @Valid VendedorRequest request) {
+        return service.salvar(request);
+    }
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public Page<VendedorProjection> buscar(@ModelAttribute VendedorFilter filter, @PageableDefault Pageable pageable) {return service.buscar(filter, pageable);}
+    public Page<VendedorProjection> buscar(@ModelAttribute VendedorFilter filter, @PageableDefault Pageable pageable) {
+        return service.buscar(filter, pageable);
+    }
 
     @PutMapping("{vendedorId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void atualizar(@PathVariable Long vendedorId, @RequestBody @Valid VendedorRequest request) {service.atualizar(vendedorId, request);}
+    public void atualizar(@PathVariable Long vendedorId, @RequestBody @Valid VendedorRequest request) {
+        service.atualizar(vendedorId, request);
+    }
 
     @DeleteMapping("{vendedorId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void desativar(@PathVariable Long vendedorId) {
+    public void atualizar(@PathVariable Long vendedorId) {
         service.desativar(vendedorId);
+    }
+
+    @PatchMapping
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void reativarConta(@RequestBody @Valid VendedorReativacaoRequest request) {
+        service.reativar(request);
     }
 }

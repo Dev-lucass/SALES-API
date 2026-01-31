@@ -3,6 +3,7 @@ package com.example.SalesHub.repository.customImpl;
 import com.example.SalesHub.dto.filter.VendedorFilter;
 import com.example.SalesHub.dto.projection.UsuarioProjection;
 import com.example.SalesHub.dto.projection.VendedorProjection;
+import com.example.SalesHub.dto.request.VendedorReativacaoRequest;
 import com.example.SalesHub.model.QVendedor;
 import com.example.SalesHub.model.Vendedor;
 import com.example.SalesHub.repository.custom.CustomVendedorRepository;
@@ -14,6 +15,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
+
 import java.time.LocalTime;
 import java.util.Optional;
 
@@ -86,10 +88,10 @@ public class VendedorRepositoryImpl implements CustomVendedorRepository {
                 .orderBy(qVendedor.id.asc())
                 .fetch();
 
-        return PageableExecutionUtils.getPage(consulta,pageable,this::buscarQuantidadeDeVendedores);
+        return PageableExecutionUtils.getPage(consulta, pageable, this::buscarQuantidadeDeVendedores);
     }
 
-    private Long buscarQuantidadeDeVendedores(){
+    private Long buscarQuantidadeDeVendedores() {
 
         var qVendedor = QVendedor.vendedor;
 
@@ -111,6 +113,25 @@ public class VendedorRepositoryImpl implements CustomVendedorRepository {
                         qVendedor.id.eq(vendedorId),
                         qVendedor.ativo.isTrue()
                 )
+                .fetchOne();
+
+        return Optional.ofNullable(consulta);
+    }
+
+    @Override
+    public Optional<Vendedor> reativarContaVendedor(VendedorReativacaoRequest request) {
+
+        var builder = new BooleanBuilder();
+        var qVendedor = QVendedor.vendedor;
+
+        builder.and(qVendedor.ativo.isFalse());
+
+        builder.and(qVendedor.id.eq(request.vendedorId()));
+        builder.and(qVendedor.cpf.eq(request.cpf()));
+
+        var consulta = query
+                .selectFrom(qVendedor)
+                .where(builder)
                 .fetchOne();
 
         return Optional.ofNullable(consulta);
