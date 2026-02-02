@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -18,22 +20,26 @@ public class Historico {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "usuario",nullable = false)
+    @JoinColumn(name = "usuario", nullable = false)
     private Usuario usuario;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "produto",nullable = false)
+    @JoinColumn(name = "produto", nullable = false)
     private Produto produto;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "estoque",nullable = false)
+    @JoinColumn(name = "estoque", nullable = false)
     private Estoque estoque;
+
+    @Column(nullable = false)
+    private BigDecimal quantidadeRetirada;
 
     @Column(nullable = false)
     private LocalDateTime criadoEm;
 
     @PrePersist
-    private void prePersistir(){
-        if(criadoEm == null) criadoEm = LocalDateTime.now();
+    private void prePersistir() {
+        if (criadoEm == null) criadoEm = LocalDateTime.now();
+        if (quantidadeRetirada == null) quantidadeRetirada = BigDecimal.ZERO;
     }
 }

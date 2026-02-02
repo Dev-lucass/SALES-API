@@ -63,15 +63,15 @@ public class GlobalHandlerException {
                 .data(LocalDateTime.now())
                 .build();
     }
-    @ExceptionHandler(Exception.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public RespostaError erroGenerico(Exception ex) {
-        return RespostaError.builder()
-                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                .erro("Ocorreu um erro interno inesperado. Nossa equipe já foi notificada.")
-                .data(LocalDateTime.now())
-                .build();
-    }
+//    @ExceptionHandler(Exception.class)
+//    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+//    public RespostaError erroGenerico(Exception ex) {
+//        return RespostaError.builder()
+//                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+//                .erro("Ocorreu um erro interno inesperado. Nossa equipe já foi notificada.")
+//                .data(LocalDateTime.now())
+//                .build();
+//    }
     @ExceptionHandler(HttpMessageNotReadableException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public RespostaError erroFormatoJson(HttpMessageNotReadableException ex) {

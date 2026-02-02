@@ -14,6 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
+
 import java.math.BigDecimal;
 import java.time.LocalTime;
 import java.util.Optional;
@@ -40,10 +41,10 @@ public class VendaRepositoryImpl implements CustomVendaRepository {
                 .ifPresent(valor -> builder.and(qVenda.valor.goe(valor)));
 
         Optional.ofNullable(filter.quantidade())
-                .ifPresent(quantidade -> builder.and(qVenda.quantidade.eq(quantidade)));
+                .ifPresent(quantidade -> builder.and(qVenda.quantidade.eq(BigDecimal.valueOf(quantidade))));
 
         Optional.ofNullable(filter.valorTotalVendas())
-                .ifPresent(valor -> builder.and(qVenda.quantidade.eq(valor.longValue())));
+                .ifPresent(valor -> builder.and(qVenda.quantidade.eq(BigDecimal.valueOf(valor.longValue()))));
 
         Optional.ofNullable(filter.dataInicial())
                 .ifPresent(inicio -> builder.and(qVenda.dataVenda.goe(inicio.atStartOfDay())));

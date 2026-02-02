@@ -9,23 +9,24 @@ import com.example.SalesHub.model.Historico;
 import com.example.SalesHub.model.Produto;
 import com.example.SalesHub.model.Usuario;
 import org.springframework.stereotype.Component;
+
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Component
 public class HistoricoMapper {
 
-    public Historico toEntity(Usuario usuario, Produto produto, Estoque estoque)
-    {
+    public Historico toEntity(Usuario usuario, Produto produto, Estoque estoque, BigDecimal quantidadeRetirada) {
         return Historico.builder()
                 .usuario(usuario)
                 .produto(produto)
                 .estoque(estoque)
+                .quantidadeRetirada(quantidadeRetirada)
                 .criadoEm(LocalDateTime.now())
                 .build();
     }
 
-    public HistoricoResponse toResponse(Historico historico, UsuarioResponse usuario, ProdutoResponse produto, EstoqueResponse estoque)
-    {
+    public HistoricoResponse toResponse(Historico historico, UsuarioResponse usuario, ProdutoResponse produto, EstoqueResponse estoque) {
         return HistoricoResponse.builder()
                 .id(historico.getId())
                 .usuario(usuario)

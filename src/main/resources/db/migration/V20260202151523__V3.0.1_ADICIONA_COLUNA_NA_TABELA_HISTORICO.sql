@@ -1,0 +1,1 @@
+ALTER TABLE historico ADD COLUMN quantidadeRetirada BIGINT NOT NULL DEFAULT 0;

@@ -22,17 +22,20 @@ class HistoricoMapperTest {
 
     @Test
     void deve_mapear_entidade_corretamente() {
+
         var usuario = Usuario.builder().id(1L).nome("Usuario Teste").build();
         var produto = Produto.builder().id(10L).nome("Produto Teste").build();
         var estoque = Estoque.builder().id(100L).quantidadeInicial(5L).build();
+        var quantidadeRetirada = 0L;
 
-        var resultado = mapper.toEntity(usuario, produto, estoque);
+        var resultado = mapper.toEntity(usuario, produto, estoque, quantidadeRetirada);
 
         assertAll(
                 () -> assertNotNull(resultado),
                 () -> assertEquals(usuario, resultado.getUsuario()),
                 () -> assertEquals(produto, resultado.getProduto()),
                 () -> assertEquals(estoque, resultado.getEstoque()),
+                () -> assertEquals(quantidadeRetirada, resultado.getQuantidadeRetirada()),
                 () -> assertNotNull(resultado.getCriadoEm()),
                 () -> assertTrue(resultado.getCriadoEm().isBefore(LocalDateTime.now().plusSeconds(1)))
         );
@@ -64,7 +67,7 @@ class HistoricoMapperTest {
 
     @Test
     void deve_lidar_com_campos_nulos_no_mapeamento_de_entidade() {
-        var resultado = mapper.toEntity(null, null, null);
+        var resultado = mapper.toEntity(null, null, null, null);
 
         assertAll(
                 () -> assertNotNull(resultado),

@@ -15,7 +15,7 @@ public record VendaRequest(
         @Min(1) @NotNull
         Long estoqueId,
         @Min(1) @NotNull
-        Long quantidade,
+        BigDecimal quantidade,
         @Min(0) @NotNull
         BigDecimal valor,
         @Min(0) @NotNull @Max(100)

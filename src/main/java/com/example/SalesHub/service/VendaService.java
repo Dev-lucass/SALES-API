@@ -17,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
 import java.math.BigDecimal;
 
 @Service
@@ -72,7 +73,8 @@ public class VendaService {
         salvarHistorico(
                 usuario,
                 produto,
-                estoque
+                estoque,
+                request.quantidade()
         );
 
         return mapper.toReponse(
@@ -83,15 +85,17 @@ public class VendaService {
         );
     }
 
-    private void validarFuncao(Usuario usuario){
-        if(usuario.getFuncao() != Funcao.VENDEDOR) throw new FuncaoInvalidaException("Você não é um vendedor, preencha o formulario para se tornar um");
+    private void validarFuncao(Usuario usuario) {
+        if (usuario.getFuncao() != Funcao.VENDEDOR)
+            throw new FuncaoInvalidaException("Você não é um vendedor, preencha o formulario para se tornar um");
     }
 
-    private void salvarHistorico(Usuario usuario, Produto produto, Estoque estoque) {
+    private void salvarHistorico(Usuario usuario, Produto produto, Estoque estoque, BigDecimal quantidadeRetirada) {
         historicoService.salvar(
                 usuario,
                 produto,
-                estoque
+                estoque,
+                quantidadeRetirada
         );
     }
 

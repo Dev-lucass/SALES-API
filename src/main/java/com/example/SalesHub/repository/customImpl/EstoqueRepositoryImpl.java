@@ -13,6 +13,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
+
+import java.math.BigDecimal;
 import java.util.Optional;
 
 @Repository
@@ -33,7 +35,7 @@ public class EstoqueRepositoryImpl implements CustomEstoqueRepository {
             builder.and(qEstoque.id.ne(estoque.getId()));
         }
 
-        var consulta =  query
+        var consulta = query
                 .selectFrom(qEstoque)
                 .where(builder)
                 .fetchFirst();
@@ -56,18 +58,18 @@ public class EstoqueRepositoryImpl implements CustomEstoqueRepository {
                 .ifPresent(produtoId -> builder.and(qEstoque.produto.id.eq(produtoId)));
 
         Optional.ofNullable(filter.quantidadeInicial())
-                .ifPresent(quantidade -> builder.and(qEstoque.quantidadeInicial.eq(quantidade)));
+                .ifPresent(quantidade -> builder.and(qEstoque.quantidadeInicial.eq(BigDecimal.valueOf(quantidade))));
 
         Optional.ofNullable(filter.quantidadeAtual())
-                .ifPresent(quantidade -> builder.and(qEstoque.quantidadeAtual.eq(quantidade)));
+                .ifPresent(quantidade -> builder.and(qEstoque.quantidadeAtual.eq(BigDecimal.valueOf(quantidade))));
 
         var consulta = query.select(Projections.constructor(
-                EstoqueProjection.class,
-                qEstoque.id,
-                qEstoque.produto.id,
-                qEstoque.quantidadeInicial,
-                qEstoque.quantidadeAtual
-        ))
+                        EstoqueProjection.class,
+                        qEstoque.id,
+                        qEstoque.produto.id,
+                        qEstoque.quantidadeInicial,
+                        qEstoque.quantidadeAtual
+                ))
                 .from(qEstoque)
                 .where(builder)
                 .orderBy(qEstoque.id.asc())
@@ -75,10 +77,10 @@ public class EstoqueRepositoryImpl implements CustomEstoqueRepository {
                 .limit(pageable.getPageSize())
                 .fetch();
 
-        return PageableExecutionUtils.getPage(consulta,pageable,this::buscarQuantidadeDeEstoque);
+        return PageableExecutionUtils.getPage(consulta, pageable, this::buscarQuantidadeDeEstoque);
     }
 
-    private Long buscarQuantidadeDeEstoque(){
+    private Long buscarQuantidadeDeEstoque() {
 
         var qEstoque = QEstoque.estoque;
 
