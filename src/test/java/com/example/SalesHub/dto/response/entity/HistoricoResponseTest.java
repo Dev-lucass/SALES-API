@@ -34,8 +34,7 @@ class HistoricoResponseTest {
                 .build();
 
         var agora = LocalDateTime.now();
-
-        // Criação do objeto principal
+      
         var response = HistoricoResponse.builder()
                 .id(500L)
                 .usuario(usuario)
@@ -44,15 +43,14 @@ class HistoricoResponseTest {
                 .criadoEm(agora)
                 .build();
 
-        // Assertions
+    
         assertThat(response).isNotNull();
         assertThat(response.id()).isEqualTo(500L);
         assertThat(response.usuario()).isEqualTo(usuario);
         assertThat(response.produto()).isEqualTo(produto);
         assertThat(response.estoque()).isEqualTo(estoque);
         assertThat(response.criadoEm()).isEqualTo(agora);
-        
-        // Verificação profunda (deep check) para garantir que os aninhados não estão nulos
+       
         assertThat(response.usuario().nome()).isNotNull();
         assertThat(response.produto().nome()).isNotNull();
         assertThat(response.estoque().quantidadeAtual()).isNotNull();
