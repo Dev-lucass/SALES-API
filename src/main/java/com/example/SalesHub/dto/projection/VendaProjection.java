@@ -10,6 +10,6 @@ public record VendaProjection(
         Long usuarioId,
         String usuario,
         BigDecimal valor,
-        Long quantidade,
+        BigDecimal quantidade,
         BigDecimal valorTotalVendas,
         LocalDateTime dataVenda) {}

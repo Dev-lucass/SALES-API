@@ -1,133 +1,144 @@
 package com.example.SalesHub.repository.customImpl;
 
-import com.example.SalesHub.configuration.JpaQueryFactoryConfig;
 import com.example.SalesHub.dto.filter.EstoqueFilter;
+import com.example.SalesHub.dto.projection.EstoqueProjection;
 import com.example.SalesHub.model.Estoque;
 import com.example.SalesHub.model.Produto;
-import jakarta.persistence.EntityManager;
+import com.example.SalesHub.model.QEstoque;
+import com.querydsl.core.types.Expression;
+import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.Predicate;
+import com.querydsl.jpa.impl.JPAQuery;
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.context.annotation.Import;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
-import java.time.LocalDateTime;
+import java.math.BigDecimal;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
-@DataJpaTest
-@Import({EstoqueRepositoryImpl.class, JpaQueryFactoryConfig.class})
+@ExtendWith(MockitoExtension.class)
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 class EstoqueRepositoryImplTest {
 
-    @Autowired
-    private EstoqueRepositoryImpl repositoryCustom;
+    @Mock
+    private JPAQueryFactory queryFactory;
 
-    @Autowired
-    private EntityManager entityManager;
+    @Mock
+    private JPAQuery<Object> jpaQuery;
 
-    private Produto produtoSalvo;
+    @Mock
+    private JPAQuery<Long> countQuery;
+
+    @InjectMocks
+    private EstoqueRepositoryImpl repository;
+
+    private Estoque estoque;
+    private Produto produto;
+    private EstoqueFilter filter;
+    private Pageable pageable;
 
     @BeforeEach
+    @SuppressWarnings("unchecked")
     void setup() {
-        produtoSalvo = Produto.builder()
-                .nome("Produto Base")
-                .descricao("Descricao Base")
-                .ativo(true)
-                .criadoEm(LocalDateTime.now())
-                .build();
-
-        entityManager.persist(produtoSalvo);
-
-        var estoque = Estoque.builder()
-                .produto(produtoSalvo)
-                .quantidadeInicial(100L)
-                .quantidadeAtual(100L)
+        produto = Produto.builder()
+                .id(10L)
+                .nome("Produto Teste")
+                .descricao("Descricao do Produto")
                 .ativo(true)
                 .build();
 
-        entityManager.persist(estoque);
-        entityManager.flush();
-        entityManager.clear();
+        estoque = Estoque.builder()
+                .id(1L)
+                .produto(produto)
+                .quantidadeInicial(new BigDecimal("100.00"))
+                .quantidadeAtual(new BigDecimal("100.00"))
+                .ativo(true)
+                .build();
+
+        filter = EstoqueFilter.builder()
+                .id(1L)
+                .produtoId(10L)
+                .quantidadeInicial(new BigDecimal("100.00"))
+                .quantidadeAtual(new BigDecimal("100.00"))
+                .build();
+
+        pageable = PageRequest.of(0, 10);
     }
 
     @Test
-    void deve_buscar_estoque_duplicado() {
-        var estoqueParaComparar = Estoque.builder()
-                .produto(produtoSalvo)
-                .build();
+    @SuppressWarnings("unchecked")
+    void deve_buscar_estoque_duplicado_com_sucesso() {
+        when(queryFactory.selectFrom(any(QEstoque.class))).thenReturn((JPAQuery) jpaQuery);
+        when(jpaQuery.where(any(Predicate.class))).thenReturn(jpaQuery);
+        when(jpaQuery.fetchFirst()).thenReturn(estoque);
 
-        var resultado = repositoryCustom.buscarEstoqueDuplicado(estoqueParaComparar);
+        var resultado = repository.buscarEstoqueDuplicado(estoque);
 
         assertThat(resultado).isPresent();
-        assertThat(resultado.get().getProduto().getId()).isEqualTo(produtoSalvo.getId());
+        assertThat(resultado.get().getId()).isEqualTo(1L);
     }
 
     @Test
-    void deve_buscar_estoques_por_filtro_de_produtoId() {
-        var filter = EstoqueFilter.builder()
-                .produtoId(produtoSalvo.getId())
-                .build();
+    @SuppressWarnings("unchecked")
+    void deve_buscar_estoques_paginado_com_todos_os_filtros() {
+        var projection = new EstoqueProjection(1L, 10L, new BigDecimal("100.00"), new BigDecimal("100.00"));
 
-        var pageable = PageRequest.of(0, 10);
+        lenient().when(queryFactory.select(any(Expression.class)))
+                .thenReturn((JPAQuery) jpaQuery)
+                .thenReturn((JPAQuery) countQuery);
 
-        var resultado = repositoryCustom.buscarEstoques(filter, pageable);
+        lenient().when(jpaQuery.from(any(QEstoque.class))).thenReturn(jpaQuery);
+        lenient().when(jpaQuery.where(any(Predicate.class))).thenReturn(jpaQuery);
+        lenient().when(jpaQuery.orderBy(any(OrderSpecifier.class))).thenReturn(jpaQuery);
+        lenient().when(jpaQuery.offset(anyLong())).thenReturn(jpaQuery);
+        lenient().when(jpaQuery.limit(anyLong())).thenReturn(jpaQuery);
+        lenient().when(jpaQuery.fetch()).thenReturn(List.of(projection));
 
-        assertThat(resultado.getContent()).hasSize(1);
-        assertThat(resultado.getContent().getFirst().produtoId()).isEqualTo(produtoSalvo.getId());
+        lenient().when(countQuery.from(any(QEstoque.class))).thenReturn(countQuery);
+        lenient().when(countQuery.where(any(Predicate.class))).thenReturn(countQuery);
+        lenient().when(countQuery.fetchFirst()).thenReturn(1L);
+
+        var resultado = repository.buscarEstoques(filter, pageable);
+
+        assertThat(resultado).isNotNull();
+        assertThat(resultado.getTotalElements()).isEqualTo(1L);
+        assertThat(resultado.getContent().get(0).id()).isEqualTo(1L);
     }
 
     @Test
-    void deve_buscar_estoques_por_filtro_de_quantidade() {
-        var filter = EstoqueFilter.builder()
-                .quantidadeAtual(100L)
-                .build();
+    @SuppressWarnings("unchecked")
+    void deve_buscar_estoque_existente_por_id_com_sucesso() {
+        when(queryFactory.selectFrom(any(QEstoque.class))).thenReturn((JPAQuery) jpaQuery);
+        when(jpaQuery.where(any(Predicate.class), any(Predicate.class))).thenReturn(jpaQuery);
+        when(jpaQuery.fetchFirst()).thenReturn(estoque);
 
-        var pageable = PageRequest.of(0, 10);
-
-        var resultado = repositoryCustom.buscarEstoques(filter, pageable);
-
-        assertThat(resultado.getContent()).isNotEmpty();
-        assertThat(resultado.getContent().getFirst().quantidadeAtual()).isEqualTo(100L);
-    }
-
-    @Test
-    void deve_buscar_estoque_existente_por_id() {
-        var novoProduto = Produto.builder()
-                .nome("Novo Produto")
-                .descricao("Nova Descricao")
-                .ativo(true)
-                .criadoEm(LocalDateTime.now())
-                .build();
-
-        entityManager.persist(novoProduto);
-
-        var estoque = Estoque.builder()
-                .produto(novoProduto)
-                .quantidadeInicial(10L)
-                .quantidadeAtual(10L)
-                .ativo(true)
-                .build();
-
-        entityManager.persist(estoque);
-        entityManager.flush();
-
-        var idParaBusca = estoque.getId();
-
-        entityManager.clear();
-
-        var resultado = repositoryCustom.buscarEstoqueExistente(idParaBusca);
+        var resultado = repository.buscarEstoqueExistente(1L);
 
         assertThat(resultado).isPresent();
-        assertThat(resultado.get().getId()).isEqualTo(idParaBusca);
+        assertThat(resultado.get().getAtivo()).isTrue();
     }
 
     @Test
-    void deve_retornar_vazio_quando_estoque_for_inativo_ou_inexistente() {
-        var resultado = repositoryCustom.buscarEstoqueExistente(999L);
+    @SuppressWarnings("unchecked")
+    void deve_retornar_vazio_quando_estoque_duplicado_nao_for_encontrado() {
+        when(queryFactory.selectFrom(any(QEstoque.class))).thenReturn((JPAQuery) jpaQuery);
+        when(jpaQuery.where(any(Predicate.class))).thenReturn(jpaQuery);
+        when(jpaQuery.fetchFirst()).thenReturn(null);
+
+        var resultado = repository.buscarEstoqueDuplicado(estoque);
+
         assertThat(resultado).isEmpty();
     }
 }

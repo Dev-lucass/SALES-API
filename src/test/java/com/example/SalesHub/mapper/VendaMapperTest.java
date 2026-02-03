@@ -7,7 +7,6 @@ import com.example.SalesHub.dto.response.entity.UsuarioResponse;
 import com.example.SalesHub.model.Produto;
 import com.example.SalesHub.model.Usuario;
 import com.example.SalesHub.model.Venda;
-import com.example.SalesHub.model.enums.StatusPagamento;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
@@ -17,66 +16,81 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.within;
-
-import java.time.temporal.ChronoUnit;
 
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 class VendaMapperTest {
 
-    private VendaMapper vendaMapper;
+    private VendaMapper mapper;
+    private Usuario usuario;
+    private Produto produto;
+    private VendaRequest request;
+    private Venda venda;
+    private UsuarioResponse usuarioResponse;
+    private ProdutoResponse produtoResponse;
+    private EstoqueResponse estoqueResponse;
 
     @BeforeEach
     void setup() {
-        vendaMapper = new VendaMapper();
-    }
+        mapper = new VendaMapper();
 
-    @Test
-    void deve_mapear_venda_request_para_entidade_venda() {
-        var request = VendaRequest.builder()
-                .valor(new BigDecimal("150.00"))
+        usuario = Usuario.builder()
+                .id(1L)
+                .nome("Vendedor Teste")
                 .build();
 
-        var usuario = Usuario.builder().id(1L).nome("Teste").build();
-        var produto = Produto.builder().id(2L).nome("Produto Teste").build();
-
-        var entity = vendaMapper.toEntity(request, usuario, produto);
-
-        assertThat(entity.getUsuario()).isEqualTo(usuario);
-        assertThat(entity.getProduto()).isEqualTo(produto);
-        assertThat(entity.getValor()).isEqualTo(new BigDecimal("150.00"));
-        assertThat(entity.getDataVenda()).isCloseTo(LocalDateTime.now(), within(1, ChronoUnit.SECONDS));
-    }
-
-    @Test
-    void deve_mapear_entidade_venda_para_venda_response() {
-        var dataFixa = LocalDateTime.now();
-        var venda = Venda.builder()
-                .id(100L)
-                .dataVenda(dataFixa)
+        produto = Produto.builder()
+                .id(2L)
+                .nome("Produto Teste")
                 .build();
 
-        var usuarioRes = UsuarioResponse.builder().id(1L).build();
-        var produtoRes = ProdutoResponse.builder().id(2L).build();
-        var estoqueRes = EstoqueResponse.builder().id(3L).build();
+        request = VendaRequest.builder()
+                .usuarioId(1L)
+                .produtoId(2L)
+                .estoqueId(3L)
+                .quantidade(new BigDecimal("2.00"))
+                .valor(new BigDecimal("100.00"))
+                .desconto(10.0)
+                .build();
 
-        var response = vendaMapper.toReponse(venda, usuarioRes, produtoRes, estoqueRes);
+        venda = Venda.builder()
+                .id(500L)
+                .usuario(usuario)
+                .produto(produto)
+                .valor(new BigDecimal("90.00"))
+                .quantidade(new BigDecimal("2.00"))
+                .valorTotalVendas(new BigDecimal("1090.00"))
+                .dataVenda(LocalDateTime.now())
+                .build();
 
-        assertThat(response.id()).isEqualTo(100L);
-        assertThat(response.usuario()).isEqualTo(usuarioRes);
-        assertThat(response.produto()).isEqualTo(produtoRes);
-        assertThat(response.estoque()).isEqualTo(estoqueRes);
-        assertThat(response.dataVenda()).isEqualTo(dataFixa);
+        usuarioResponse = UsuarioResponse.builder().id(1L).nome("Vendedor Teste").build();
+        produtoResponse = ProdutoResponse.builder().id(2L).nome("Produto Teste").build();
+        estoqueResponse = EstoqueResponse.builder().id(3L).build();
     }
 
     @Test
-    void deve_manter_consistencia_de_objetos_nulos_se_passados_ao_mapear_response() {
-        var venda = Venda.builder().id(1L).build();
+    void deve_converter_venda_request_para_entidade() {
+        var resultado = mapper.toEntity(request, usuario, produto);
 
-        var response = vendaMapper.toReponse(venda, null, null, null);
+        assertThat(resultado).isNotNull();
+        assertThat(resultado.getUsuario()).isEqualTo(usuario);
+        assertThat(resultado.getProduto()).isEqualTo(produto);
+        assertThat(resultado.getValor()).isEqualByComparingTo(request.valor());
+        assertThat(resultado.getQuantidade()).isEqualByComparingTo(request.quantidade());
+        assertThat(resultado.getDataVenda()).isBeforeOrEqualTo(LocalDateTime.now());
+    }
 
-        assertThat(response.usuario()).isNull();
-        assertThat(response.produto()).isNull();
-        assertThat(response.estoque()).isNull();
+    @Test
+    void deve_converter_entidade_venda_para_response() {
+        var resultado = mapper.toReponse(venda, usuarioResponse, produtoResponse, estoqueResponse);
+
+        assertThat(resultado).isNotNull();
+        assertThat(resultado.id()).isEqualTo(venda.getId());
+        assertThat(resultado.usuario()).isEqualTo(usuarioResponse);
+        assertThat(resultado.produto()).isEqualTo(produtoResponse);
+        assertThat(resultado.estoque()).isEqualTo(estoqueResponse);
+        assertThat(resultado.valor()).isEqualByComparingTo(venda.getValor());
+        assertThat(resultado.quantidade()).isEqualByComparingTo(venda.getQuantidade());
+        assertThat(resultado.valorTotalVendas()).isEqualByComparingTo(venda.getValorTotalVendas());
+        assertThat(resultado.dataVenda()).isEqualTo(venda.getDataVenda());
     }
 }

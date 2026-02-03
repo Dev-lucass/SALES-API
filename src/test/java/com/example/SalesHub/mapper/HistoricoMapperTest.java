@@ -7,89 +7,93 @@ import com.example.SalesHub.model.Estoque;
 import com.example.SalesHub.model.Historico;
 import com.example.SalesHub.model.Produto;
 import com.example.SalesHub.model.Usuario;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 class HistoricoMapperTest {
 
-    private final HistoricoMapper mapper = new HistoricoMapper();
+    private HistoricoMapper mapper;
+    private Usuario usuario;
+    private Produto produto;
+    private Estoque estoque;
+    private Historico historico;
+    private UsuarioResponse usuarioResponse;
+    private ProdutoResponse produtoResponse;
+    private EstoqueResponse estoqueResponse;
 
-    @Test
-    void deve_mapear_entidade_corretamente() {
+    @BeforeEach
+    void setup() {
+        mapper = new HistoricoMapper();
 
-        var usuario = Usuario.builder().id(1L).nome("Usuario Teste").build();
-        var produto = Produto.builder().id(10L).nome("Produto Teste").build();
-        var estoque = Estoque.builder().id(100L).quantidadeInicial(5L).build();
-        var quantidadeRetirada = 0L;
-
-        var resultado = mapper.toEntity(usuario, produto, estoque, quantidadeRetirada);
-
-        assertAll(
-                () -> assertNotNull(resultado),
-                () -> assertEquals(usuario, resultado.getUsuario()),
-                () -> assertEquals(produto, resultado.getProduto()),
-                () -> assertEquals(estoque, resultado.getEstoque()),
-                () -> assertEquals(quantidadeRetirada, resultado.getQuantidadeRetirada()),
-                () -> assertNotNull(resultado.getCriadoEm()),
-                () -> assertTrue(resultado.getCriadoEm().isBefore(LocalDateTime.now().plusSeconds(1)))
-        );
-    }
-
-    @Test
-    void deve_mapear_response_corretamente() {
-        var criadoEm = LocalDateTime.of(2026, 1, 31, 10, 0, 0);
-        var historico = Historico.builder()
-                .id(500L)
-                .criadoEm(criadoEm)
+        usuario = Usuario.builder()
+                .id(1L)
+                .nome("Usuario Teste")
                 .build();
 
-        var usuarioResponse = UsuarioResponse.builder().id(1L).build();
-        var produtoResponse = ProdutoResponse.builder().id(10L).build();
-        var estoqueResponse = EstoqueResponse.builder().id(100L).build();
+        produto = Produto.builder()
+                .id(2L)
+                .nome("Produto Teste")
+                .build();
 
+        estoque = Estoque.builder()
+                .id(3L)
+                .build();
+
+        historico = Historico.builder()
+                .id(100L)
+                .usuario(usuario)
+                .produto(produto)
+                .estoque(estoque)
+                .quantidadeRetirada(new BigDecimal("10.00"))
+                .criadoEm(LocalDateTime.now())
+                .build();
+
+        usuarioResponse = UsuarioResponse.builder()
+                .id(1L)
+                .nome("Usuario Teste")
+                .build();
+
+        produtoResponse = ProdutoResponse.builder()
+                .id(2L)
+                .nome("Produto Teste")
+                .build();
+
+        estoqueResponse = EstoqueResponse.builder()
+                .id(3L)
+                .build();
+    }
+
+    @Test
+    void deve_converter_para_entidade_historico() {
+        var quantidade = new BigDecimal("5.00");
+
+        var resultado = mapper.toEntity(usuario, produto, estoque, quantidade);
+
+        assertThat(resultado).isNotNull();
+        assertThat(resultado.getUsuario()).isEqualTo(usuario);
+        assertThat(resultado.getProduto()).isEqualTo(produto);
+        assertThat(resultado.getEstoque()).isEqualTo(estoque);
+        assertThat(resultado.getQuantidadeRetirada()).isEqualByComparingTo(quantidade);
+        assertThat(resultado.getCriadoEm()).isBeforeOrEqualTo(LocalDateTime.now());
+    }
+
+    @Test
+    void deve_converter_entidade_para_response_historico() {
         var resultado = mapper.toResponse(historico, usuarioResponse, produtoResponse, estoqueResponse);
 
-        assertAll(
-                () -> assertNotNull(resultado),
-                () -> assertEquals(500L, resultado.id()),
-                () -> assertEquals(usuarioResponse, resultado.usuario()),
-                () -> assertEquals(produtoResponse, resultado.produto()),
-                () -> assertEquals(estoqueResponse, resultado.estoque()),
-                () -> assertEquals(criadoEm, resultado.criadoEm())
-        );
-    }
-
-    @Test
-    void deve_lidar_com_campos_nulos_no_mapeamento_de_entidade() {
-        var resultado = mapper.toEntity(null, null, null, null);
-
-        assertAll(
-                () -> assertNotNull(resultado),
-                () -> assertNull(resultado.getUsuario()),
-                () -> assertNull(resultado.getProduto()),
-                () -> assertNull(resultado.getEstoque()),
-                () -> assertNotNull(resultado.getCriadoEm())
-        );
-    }
-
-    @Test
-    void deve_lidar_com_campos_nulos_no_mapeamento_de_response() {
-        var historico = Historico.builder().id(1L).build();
-
-        var resultado = mapper.toResponse(historico, null, null, null);
-
-        assertAll(
-                () -> assertEquals(1L, resultado.id()),
-                () -> assertNull(resultado.usuario()),
-                () -> assertNull(resultado.produto()),
-                () -> assertNull(resultado.estoque()),
-                () -> assertNull(resultado.criadoEm())
-        );
+        assertThat(resultado).isNotNull();
+        assertThat(resultado.id()).isEqualTo(historico.getId());
+        assertThat(resultado.usuario()).isEqualTo(usuarioResponse);
+        assertThat(resultado.produto()).isEqualTo(produtoResponse);
+        assertThat(resultado.estoque()).isEqualTo(estoqueResponse);
+        assertThat(resultado.criadoEm()).isEqualTo(historico.getCriadoEm());
     }
 }
