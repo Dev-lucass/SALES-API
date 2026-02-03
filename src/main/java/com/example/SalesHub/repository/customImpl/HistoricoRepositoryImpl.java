@@ -12,7 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
-import java.math.BigDecimal;
+
 import java.util.Optional;
 
 @Repository
@@ -40,7 +40,7 @@ public class HistoricoRepositoryImpl implements CustomHistoricoRepository {
                 .ifPresent(estoqueId -> builder.and(qHistorico.estoque.id.eq(estoqueId)));
 
         Optional.ofNullable(filter.quantidadeRetirada())
-                .ifPresent(quantidade -> builder.and(qHistorico.quantidadeRetirada.eq(BigDecimal.valueOf(quantidade))));
+                .ifPresent(quantidade -> builder.and(qHistorico.quantidadeRetirada.eq(quantidade)));
 
         var consulta = query
                 .select(Projections.constructor(HistoricoProjection.class,

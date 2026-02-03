@@ -1,10 +1,11 @@
 package com.example.SalesHub.dto.filter;
 
 import lombok.Builder;
+import java.math.BigDecimal;
 
 @Builder
 public record EstoqueFilter(
         Long id,
         Long produtoId,
-        Long quantidadeInicial,
-        Long quantidadeAtual) { }
+        BigDecimal quantidadeInicial,
+        BigDecimal quantidadeAtual) { }

@@ -1,75 +1,69 @@
 package com.example.SalesHub.dto.filter;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
+
+import java.math.BigDecimal;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 class EstoqueFilterTest {
 
     @Test
-    void deve_criar_estoqueFilter_completo() {
-        var estoqueFilter = EstoqueFilter.builder()
+    void deve_criar_estoque_filter_com_sucesso_usando_builder() {
+        var id = 1L;
+        var produtoId = 10L;
+        var quantidadeInicial = new BigDecimal("100.00");
+        var quantidadeAtual = new BigDecimal("50.00");
+
+        var filter = EstoqueFilter.builder()
+                .id(id)
+                .produtoId(produtoId)
+                .quantidadeInicial(quantidadeInicial)
+                .quantidadeAtual(quantidadeAtual)
+                .build();
+
+        assertThat(filter).isNotNull();
+        assertThat(filter.id()).isEqualTo(id);
+        assertThat(filter.produtoId()).isEqualTo(produtoId);
+        assertThat(filter.quantidadeInicial()).isEqualByComparingTo(quantidadeInicial);
+        assertThat(filter.quantidadeAtual()).isEqualByComparingTo(quantidadeAtual);
+    }
+
+    @Test
+    void deve_garantir_que_todos_os_campos_estao_preenchidos() {
+        var filter = EstoqueFilter.builder()
+                .id(2L)
+                .produtoId(20L)
+                .quantidadeInicial(BigDecimal.ZERO)
+                .quantidadeAtual(BigDecimal.TEN)
+                .build();
+
+        assertThat(filter.id()).isNotNull();
+        assertThat(filter.produtoId()).isNotNull();
+        assertThat(filter.quantidadeInicial()).isNotNull();
+        assertThat(filter.quantidadeAtual()).isNotNull();
+    }
+
+    @Test
+    void deve_testar_igualdade_do_record() {
+        var filter1 = EstoqueFilter.builder()
                 .id(1L)
-                .produtoId(50L)
-                .quantidadeInicial(10L)
-                .quantidadeAtual(100L)
+                .produtoId(10L)
+                .quantidadeInicial(BigDecimal.ONE)
+                .quantidadeAtual(BigDecimal.ONE)
                 .build();
 
-        Assertions.assertThat(estoqueFilter)
-                .isNotNull()
-                .satisfies(saida -> {
-                    Assertions.assertThat(saida.id()).isEqualTo(1L);
-                    Assertions.assertThat(saida.produtoId()).isEqualTo(50L);
-                    Assertions.assertThat(saida.quantidadeInicial()).isEqualTo(10L);
-                    Assertions.assertThat(saida.quantidadeAtual()).isEqualTo(100L);
-                });
-    }
-
-    @Test
-    void deve_criar_estoqueFilter_com_campos_nulos() {
-        var estoqueFilter = EstoqueFilter.builder()
-                .id(null)
-                .produtoId(null)
-                .quantidadeInicial(null)
-                .quantidadeAtual(null)
+        var filter2 = EstoqueFilter.builder()
+                .id(1L)
+                .produtoId(10L)
+                .quantidadeInicial(BigDecimal.ONE)
+                .quantidadeAtual(BigDecimal.ONE)
                 .build();
 
-        Assertions.assertThat(estoqueFilter)
-                .isNotNull()
-                .satisfies(saida -> {
-                    Assertions.assertThat(saida.id()).isNull();
-                    Assertions.assertThat(saida.produtoId()).isNull();
-                    Assertions.assertThat(saida.quantidadeInicial()).isNull();
-                    Assertions.assertThat(saida.quantidadeAtual()).isNull();
-                });
-    }
-
-    @Test
-    void deve_garantir_integridade_do_relacionamento_produtoId() {
-        Long produtoIdRelacionamento = 999L;
-
-        var estoqueFilter = EstoqueFilter.builder()
-                .produtoId(produtoIdRelacionamento)
-                .build();
-
-        Assertions.assertThat(estoqueFilter.produtoId())
-                .isNotNull()
-                .isEqualTo(produtoIdRelacionamento);
-    }
-
-    @Test
-    void deve_validar_igualdade_de_valores_long() {
-        var valorQuantidade = 500L;
-
-        var estoqueFilter = EstoqueFilter.builder()
-                .quantidadeInicial(valorQuantidade)
-                .quantidadeAtual(valorQuantidade)
-                .build();
-
-        Assertions.assertThat(estoqueFilter.quantidadeInicial())
-                .isEqualTo(estoqueFilter.quantidadeAtual())
-                .isEqualTo(500L);
+        assertThat(filter1).isEqualTo(filter2);
+        assertThat(filter1.hashCode()).isEqualTo(filter2.hashCode());
     }
 }

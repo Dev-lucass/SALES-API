@@ -21,11 +21,11 @@ public class Venda {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "usuario", nullable = false)
+    @JoinColumn(nullable = false)
     private Usuario usuario;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "produto", nullable = false)
+    @JoinColumn(nullable = false)
     private Produto produto;
 
     @Column(nullable = false)

@@ -1,88 +1,83 @@
 package com.example.SalesHub.dto.filter;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 class VendaFilterTest {
 
-    private VendaFilter filter;
-    private DateTimeFormatter formatter;
-
-    @BeforeEach
-    void setup() {
-        formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-        filter = VendaFilter.builder()
-                .id(1L)
-                .usuarioId(10L)
-                .valor(500L)
-                .dataInicial(LocalDate.parse("01/01/2026", formatter))
-                .dataFinal(LocalDate.parse("31/01/2026", formatter))
-                .build();
-    }
-
     @Test
-    void deve_armazenar_valores_corretamente_no_filtro() {
-        assertThat(filter.id()).isEqualTo(1L);
-        assertThat(filter.usuarioId()).isEqualTo(10L);
-        assertThat(filter.valor()).isEqualTo(500L);
-    }
+    void deve_criar_venda_filter_com_sucesso_usando_builder() {
+        var id = 500L;
+        var usuarioId = 1L;
+        var valor = new BigDecimal("250.00");
+        var quantidade = new BigDecimal("10.00");
+        var valorTotal = new BigDecimal("2500.00");
+        var dataInicial = LocalDate.of(2026, 1, 1);
+        var dataFinal = LocalDate.of(2026, 2, 3);
 
-    @Test
-    void deve_validar_formatacao_das_datas_conforme_padrao_esperado() {
-        var dataEsperada = "29/01/2026";
-        var dataLocal = LocalDate.parse(dataEsperada, formatter);
-
-        var filterComData = VendaFilter.builder()
-                .dataInicial(dataLocal)
-                .build();
-
-        assertThat(filterComData.dataInicial().format(formatter)).isEqualTo(dataEsperada);
-    }
-
-    @Test
-    void deve_permitir_filtro_apenas_com_datas_nulas() {
-        var filterSemDatas = VendaFilter.builder()
-                .id(1L)
-                .dataInicial(null)
-                .dataFinal(null)
-                .build();
-
-        assertThat(filterSemDatas.dataInicial()).isNull();
-        assertThat(filterSemDatas.dataFinal()).isNull();
-    }
-
-    @ParameterizedTest
-    @ValueSource(strings = {"2026-01-01", "01-01-2026", "2026/01/01"})
-    void deve_garantir_que_datas_em_formatos_invalidos_nao_sejam_processadas_pelo_formatter(String dataInvalida) {
-        var lancouExcecao = false;
-        try {
-            LocalDate.parse(dataInvalida, formatter);
-        } catch (Exception e) {
-            lancouExcecao = true;
-        }
-        assertThat(lancouExcecao).isTrue();
-    }
-
-    @Test
-    void deve_garantir_que_data_inicial_seja_anterior_ou_igual_a_data_final() {
-        var dataInicial = LocalDate.parse("10/01/2026", formatter);
-        var dataFinal = LocalDate.parse("05/01/2026", formatter);
-
-        var filterInconsistente = VendaFilter.builder()
+        var filter = VendaFilter.builder()
+                .id(id)
+                .usuarioId(usuarioId)
+                .valor(valor)
+                .quantidade(quantidade)
+                .valorTotalVendas(valorTotal)
                 .dataInicial(dataInicial)
                 .dataFinal(dataFinal)
                 .build();
 
-        assertThat(filterInconsistente.dataInicial()).isAfter(filterInconsistente.dataFinal());
+        assertThat(filter).isNotNull();
+        assertThat(filter.id()).isEqualTo(id);
+        assertThat(filter.usuarioId()).isEqualTo(usuarioId);
+        assertThat(filter.valor()).isEqualByComparingTo(valor);
+        assertThat(filter.quantidade()).isEqualByComparingTo(quantidade);
+        assertThat(filter.valorTotalVendas()).isEqualByComparingTo(valorTotal);
+        assertThat(filter.dataInicial()).isEqualTo(dataInicial);
+        assertThat(filter.dataFinal()).isEqualTo(dataFinal);
+    }
+
+    @Test
+    void deve_garantir_que_todos_os_campos_do_venda_filter_nao_sao_nulos() {
+        var filter = VendaFilter.builder()
+                .id(1L)
+                .usuarioId(1L)
+                .valor(BigDecimal.TEN)
+                .quantidade(BigDecimal.ONE)
+                .valorTotalVendas(BigDecimal.TEN)
+                .dataInicial(LocalDate.now())
+                .dataFinal(LocalDate.now())
+                .build();
+
+        assertThat(filter.id()).isNotNull();
+        assertThat(filter.usuarioId()).isNotNull();
+        assertThat(filter.valor()).isNotNull();
+        assertThat(filter.quantidade()).isNotNull();
+        assertThat(filter.valorTotalVendas()).isNotNull();
+        assertThat(filter.dataInicial()).isNotNull();
+        assertThat(filter.dataFinal()).isNotNull();
+    }
+
+    @Test
+    void deve_testar_igualdade_do_record_venda_filter() {
+        var hoje = LocalDate.now();
+
+        var filter1 = VendaFilter.builder()
+                .id(100L)
+                .dataInicial(hoje)
+                .build();
+
+        var filter2 = VendaFilter.builder()
+                .id(100L)
+                .dataInicial(hoje)
+                .build();
+
+        assertThat(filter1).isEqualTo(filter2);
+        assertThat(filter1.hashCode()).isEqualTo(filter2.hashCode());
     }
 }
