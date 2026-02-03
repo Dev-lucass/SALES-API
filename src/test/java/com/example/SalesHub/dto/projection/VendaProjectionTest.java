@@ -1,6 +1,5 @@
 package com.example.SalesHub.dto.projection;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
@@ -13,51 +12,81 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 class VendaProjectionTest {
 
-    private VendaProjection projection;
-    private LocalDateTime dataReferencia;
+    @Test
+    void deve_criar_venda_projection_com_sucesso_usando_builder() {
+        var id = 100L;
+        var usuarioId = 1L;
+        var nomeUsuario = "Junior Testador";
+        var valor = new BigDecimal("150.50");
+        var quantidade = new BigDecimal("5.00");
+        var valorTotal = new BigDecimal("752.50");
+        var dataVenda = LocalDateTime.of(2026, 2, 3, 12, 0, 0);
 
-    @BeforeEach
-    void setup() {
-        dataReferencia = LocalDateTime.of(2026, 1, 29, 12, 0);
+        var projection = VendaProjection.builder()
+                .id(id)
+                .usuarioId(usuarioId)
+                .usuario(nomeUsuario)
+                .valor(valor)
+                .quantidade(quantidade)
+                .valorTotalVendas(valorTotal)
+                .dataVenda(dataVenda)
+                .build();
 
-        projection = VendaProjection.builder()
-                .id(100L)
+        assertThat(projection).isNotNull();
+        assertThat(projection.id()).isEqualTo(id);
+        assertThat(projection.usuarioId()).isEqualTo(usuarioId);
+        assertThat(projection.usuario()).isEqualTo(nomeUsuario);
+        assertThat(projection.valor()).isEqualByComparingTo(valor);
+        assertThat(projection.quantidade()).isEqualByComparingTo(quantidade);
+        assertThat(projection.valorTotalVendas()).isEqualByComparingTo(valorTotal);
+        assertThat(projection.dataVenda()).isEqualTo(dataVenda);
+    }
+
+    @Test
+    void deve_garantir_que_todos_os_campos_da_venda_projection_nao_sao_nulos() {
+        var projection = VendaProjection.builder()
+                .id(1L)
                 .usuarioId(1L)
-                .usuario("João")
-                .valor(new BigDecimal("250.50"))
-                .dataVenda(dataReferencia)
+                .usuario("Vendedor")
+                .valor(BigDecimal.TEN)
+                .quantidade(BigDecimal.ONE)
+                .valorTotalVendas(BigDecimal.TEN)
+                .dataVenda(LocalDateTime.now())
                 .build();
+
+        assertThat(projection.id()).isNotNull();
+        assertThat(projection.usuarioId()).isNotNull();
+        assertThat(projection.usuario()).isNotNull();
+        assertThat(projection.valor()).isNotNull();
+        assertThat(projection.quantidade()).isNotNull();
+        assertThat(projection.valorTotalVendas()).isNotNull();
+        assertThat(projection.dataVenda()).isNotNull();
     }
 
     @Test
-    void deve_manter_integridade_dos_dados_na_projecao() {
-        assertThat(projection.id()).isEqualTo(100L);
-        assertThat(projection.usuarioId()).isEqualTo(1L);
-        assertThat(projection.usuario()).isEqualTo("João");
-        assertThat(projection.valor()).isEqualByComparingTo("250.50");
-        assertThat(projection.dataVenda()).isEqualTo(dataReferencia);
-    }
+    void deve_testar_igualdade_e_hashcode_do_record_venda_projection() {
+        var dataVenda = LocalDateTime.now();
+        var qtd = new BigDecimal("2.00");
 
-    @Test
-    void deve_permitir_criacao_com_valores_nulos_para_filtros_opcionais() {
-        var projectionNula = VendaProjection.builder()
-                .id(200L)
-                .usuarioId(null)
-                .usuario(null)
-                .valor(null)
+        var v1 = VendaProjection.builder()
+                .id(1L)
+                .usuarioId(10L)
+                .quantidade(qtd)
+                .valor(BigDecimal.TEN)
+                .valorTotalVendas(new BigDecimal("20.00"))
+                .dataVenda(dataVenda)
                 .build();
 
-        assertThat(projectionNula.usuarioId()).isNull();
-        assertThat(projectionNula.usuario()).isNull();
-        assertThat(projectionNula.valor()).isNull();
-    }
-
-    @Test
-    void deve_garantir_que_instancias_diferentes_nao_sao_iguais() {
-        var outraProjection = VendaProjection.builder()
-                .id(101L)
+        var v2 = VendaProjection.builder()
+                .id(1L)
+                .usuarioId(10L)
+                .quantidade(qtd)
+                .valor(BigDecimal.TEN)
+                .valorTotalVendas(new BigDecimal("20.00"))
+                .dataVenda(dataVenda)
                 .build();
 
-        assertThat(projection).isNotEqualTo(outraProjection);
+        assertThat(v1).isEqualTo(v2);
+        assertThat(v1.hashCode()).isEqualTo(v2.hashCode());
     }
 }

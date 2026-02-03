@@ -20,7 +20,7 @@ public class Vendedor {
     private Long id;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "usuario", nullable = false)
+    @JoinColumn(nullable = false)
     private Usuario usuario;
 
     @Column(nullable = false, unique = true)

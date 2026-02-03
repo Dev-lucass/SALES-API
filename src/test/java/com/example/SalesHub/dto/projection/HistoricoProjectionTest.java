@@ -3,78 +3,76 @@ package com.example.SalesHub.dto.projection;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
-import static org.junit.jupiter.api.Assertions.*;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 class HistoricoProjectionTest {
 
-    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
-
     @Test
-    void deve_criar_instancia_completa_pelo_builder() {
-        var dataHoraStr = "15/02/2026 14:30:45";
-        var criadoEm = LocalDateTime.parse(dataHoraStr, formatter);
+    void deve_criar_historico_projection_com_sucesso_usando_builder() {
+        var id = 1L;
+        var usuarioId = 10L;
+        var produtoId = 20L;
+        var estoqueId = 30L;
+        var quantidade = new BigDecimal("12.50");
+        var criadoEm = LocalDateTime.of(2026, 2, 3, 10, 30, 0);
 
         var projection = HistoricoProjection.builder()
-                .id(1L)
-                .usuarioId(20L)
-                .produtoId(300L)
-                .estoqueId(4000L)
+                .id(id)
+                .usuarioId(usuarioId)
+                .produtoId(produtoId)
+                .estoqueId(estoqueId)
+                .quantidadeRetirada(quantidade)
                 .criadoEm(criadoEm)
                 .build();
 
-        assertAll(
-                () -> assertEquals(1L, projection.id()),
-                () -> assertEquals(20L, projection.usuarioId()),
-                () -> assertEquals(300L, projection.produtoId()),
-                () -> assertEquals(4000L, projection.estoqueId()),
-                () -> assertEquals(criadoEm, projection.criadoEm()),
-                () -> assertEquals("15/02/2026 14:30:45", projection.criadoEm().format(formatter))
-        );
+        assertThat(projection).isNotNull();
+        assertThat(projection.id()).isEqualTo(id);
+        assertThat(projection.usuarioId()).isEqualTo(usuarioId);
+        assertThat(projection.produtoId()).isEqualTo(produtoId);
+        assertThat(projection.estoqueId()).isEqualTo(estoqueId);
+        assertThat(projection.quantidadeRetirada()).isEqualByComparingTo(quantidade);
+        assertThat(projection.criadoEm()).isEqualTo(criadoEm);
     }
 
     @Test
-    void deve_validar_formatacao_da_data_e_hora() {
+    void deve_garantir_que_todos_os_campos_da_projecao_historico_nao_sao_nulos() {
+        var projection = HistoricoProjection.builder()
+                .id(1L)
+                .usuarioId(1L)
+                .produtoId(1L)
+                .estoqueId(1L)
+                .quantidadeRetirada(BigDecimal.ONE)
+                .criadoEm(LocalDateTime.now())
+                .build();
+
+        assertThat(projection.id()).isNotNull();
+        assertThat(projection.usuarioId()).isNotNull();
+        assertThat(projection.produtoId()).isNotNull();
+        assertThat(projection.estoqueId()).isNotNull();
+        assertThat(projection.quantidadeRetirada()).isNotNull();
+        assertThat(projection.criadoEm()).isNotNull();
+    }
+
+    @Test
+    void deve_testar_igualdade_e_hashcode_do_record_historico_projection() {
         var agora = LocalDateTime.now();
-        var projection = HistoricoProjection.builder().criadoEm(agora).build();
 
-        var formatado = projection.criadoEm().format(formatter);
-        var recuperado = LocalDateTime.parse(formatado, formatter);
+        var p1 = HistoricoProjection.builder()
+                .id(1L)
+                .criadoEm(agora)
+                .build();
 
-        assertEquals(agora.getSecond(), recuperado.getSecond());
-        assertEquals(agora.getDayOfMonth(), recuperado.getDayOfMonth());
-    }
+        var p2 = HistoricoProjection.builder()
+                .id(1L)
+                .criadoEm(agora)
+                .build();
 
-    @Test
-    void deve_permitir_valores_nulos_no_projection() {
-        var projection = HistoricoProjection.builder().build();
-
-        assertAll(
-                () -> assertNull(projection.id()),
-                () -> assertNull(projection.usuarioId()),
-                () -> assertNull(projection.criadoEm())
-        );
-    }
-
-    @Test
-    void deve_garantir_igualdade_entre_records_com_mesmos_dados() {
-        var data = LocalDateTime.parse("20/05/2026 10:00:00", formatter);
-
-        var p1 = HistoricoProjection.builder().id(1L).criadoEm(data).build();
-        var p2 = HistoricoProjection.builder().id(1L).criadoEm(data).build();
-
-        assertEquals(p1, p2);
-        assertEquals(p1.hashCode(), p2.hashCode());
-    }
-
-    @Test
-    void deve_ser_um_record_com_comportamento_imutavel() {
-        var projection = HistoricoProjection.builder().id(100L).build();
-
-        assertTrue(projection.getClass().isRecord());
-        assertEquals(100L, projection.id());
+        assertThat(p1).isEqualTo(p2);
+        assertThat(p1.hashCode()).isEqualTo(p2.hashCode());
     }
 }

@@ -1,8 +1,0 @@
-ALTER TABLE estoque ALTER COLUMN quantidadeInicial NUMERIC(10,2) NOT NULL;
-ALTER TABLE estoque ALTER COLUMN quantidadeInicial SET DEFAULT 0.0;
-
-ALTER TABLE estoque ALTER COLUMN quantidadeAtual NUMERIC(10,2) NOT NULL;
-ALTER TABLE estoque ALTER COLUMN quantidadeAtual SET DEFAULT 0.0;
-
-ALTER TABLE historico ALTER COLUMN quantidadeRetirada NUMERIC(10,2) NOT NULL;
-ALTER TABLE historico ALTER COLUMN quantidadeRetirada SET DEFAULT 0.0;

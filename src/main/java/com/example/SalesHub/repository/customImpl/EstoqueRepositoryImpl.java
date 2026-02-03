@@ -14,7 +14,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 
-import java.math.BigDecimal;
 import java.util.Optional;
 
 @Repository
@@ -58,10 +57,10 @@ public class EstoqueRepositoryImpl implements CustomEstoqueRepository {
                 .ifPresent(produtoId -> builder.and(qEstoque.produto.id.eq(produtoId)));
 
         Optional.ofNullable(filter.quantidadeInicial())
-                .ifPresent(quantidade -> builder.and(qEstoque.quantidadeInicial.eq(BigDecimal.valueOf(quantidade))));
+                .ifPresent(quantidade -> builder.and(qEstoque.quantidadeInicial.eq(quantidade)));
 
         Optional.ofNullable(filter.quantidadeAtual())
-                .ifPresent(quantidade -> builder.and(qEstoque.quantidadeAtual.eq(BigDecimal.valueOf(quantidade))));
+                .ifPresent(quantidade -> builder.and(qEstoque.quantidadeAtual.eq(quantidade)));
 
         var consulta = query.select(Projections.constructor(
                         EstoqueProjection.class,

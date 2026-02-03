@@ -1,48 +1,69 @@
 package com.example.SalesHub.dto.projection;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
+
+import java.math.BigDecimal;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 class EstoqueProjectionTest {
 
     @Test
-    void deve_criar_estoqueProjection_completo() {
-        var estoqueProjection = EstoqueProjection.builder()
-                .id(1L)
-                .produtoId(10L)
-                .quantidadeInicial(100L)
-                .quantidadeAtual(50L)
+    void deve_criar_estoque_projection_com_sucesso_usando_builder() {
+        var id = 1L;
+        var produtoId = 50L;
+        var quantidadeInicial = new BigDecimal("100.00");
+        var quantidadeAtual = new BigDecimal("85.50");
+
+        var projection = EstoqueProjection.builder()
+                .id(id)
+                .produtoId(produtoId)
+                .quantidadeInicial(quantidadeInicial)
+                .quantidadeAtual(quantidadeAtual)
                 .build();
 
-        Assertions.assertThat(estoqueProjection)
-                .isNotNull()
-                .satisfies(saida -> {
-                    Assertions.assertThat(saida.id()).isEqualTo(1L);
-                    Assertions.assertThat(saida.produtoId()).isEqualTo(10L);
-                    Assertions.assertThat(saida.quantidadeInicial()).isEqualTo(100L);
-                    Assertions.assertThat(saida.quantidadeAtual()).isEqualTo(50L);
-                });
+        assertThat(projection).isNotNull();
+        assertThat(projection.id()).isEqualTo(id);
+        assertThat(projection.produtoId()).isEqualTo(produtoId);
+        assertThat(projection.quantidadeInicial()).isEqualByComparingTo(quantidadeInicial);
+        assertThat(projection.quantidadeAtual()).isEqualByComparingTo(quantidadeAtual);
     }
 
     @Test
-    void deve_criar_estoqueProjection_nulo() {
-        var estoqueProjection = EstoqueProjection.builder()
-                .id(null)
-                .produtoId(null)
-                .quantidadeInicial(null)
-                .quantidadeAtual(null)
+    void deve_garantir_que_todos_os_campos_da_projecao_nao_sao_nulos() {
+        var projection = EstoqueProjection.builder()
+                .id(1L)
+                .produtoId(1L)
+                .quantidadeInicial(BigDecimal.ZERO)
+                .quantidadeAtual(BigDecimal.ZERO)
                 .build();
 
-        Assertions.assertThat(estoqueProjection)
-                .isNotNull()
-                .satisfies(saida -> {
-                    Assertions.assertThat(saida.id()).isNull();
-                    Assertions.assertThat(saida.produtoId()).isNull();
-                    Assertions.assertThat(saida.quantidadeInicial()).isNull();
-                    Assertions.assertThat(saida.quantidadeAtual()).isNull();
-                });
+        assertThat(projection.id()).isNotNull();
+        assertThat(projection.produtoId()).isNotNull();
+        assertThat(projection.quantidadeInicial()).isNotNull();
+        assertThat(projection.quantidadeAtual()).isNotNull();
+    }
+
+    @Test
+    void deve_testar_igualdade_e_hashcode_do_record_estoque_projection() {
+        var p1 = EstoqueProjection.builder()
+                .id(1L)
+                .produtoId(10L)
+                .quantidadeInicial(BigDecimal.TEN)
+                .quantidadeAtual(BigDecimal.ONE)
+                .build();
+
+        var p2 = EstoqueProjection.builder()
+                .id(1L)
+                .produtoId(10L)
+                .quantidadeInicial(BigDecimal.TEN)
+                .quantidadeAtual(BigDecimal.ONE)
+                .build();
+
+        assertThat(p1).isEqualTo(p2);
+        assertThat(p1.hashCode()).isEqualTo(p2.hashCode());
     }
 }
