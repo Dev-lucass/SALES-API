@@ -116,4 +116,19 @@ public class UsuarioRepositoryImpl implements CustomUsuarioRepository {
         return Optional.ofNullable(consulta);
     }
 
+    @Override
+    public Optional<Usuario> buscarUsuarioPeloNome(String nome) {
+
+        var qUsuario = QUsuario.usuario;
+
+        var consulta = query
+                .selectFrom(qUsuario)
+                .where(
+                        qUsuario.nome.eq(nome),
+                        qUsuario.ativo.isTrue()
+                )
+                .fetchFirst();
+
+        return Optional.ofNullable(consulta);
+    }
 }

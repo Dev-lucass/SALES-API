@@ -1,6 +1,19 @@
 spring:
   application:
     name: SalesHub
+  output:
+    ansi:
+      enabled: ALWAYS
   profiles:
-    active:
-      - test
+    active: test
+
+logging:
+  file:
+    name: logs/api.log
+  charset:
+    file: 'UTF-8'
+    console: 'UTF-8'
+  pattern:
+    console: "%clr(%d{yyyy-MM-dd HH:mm:ss}){blue} %clr(%5p) %clr(--->){magenta} %clr(%m){faint}%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+    dateformat: "dd/MM/yyyy HH:mm:ss"

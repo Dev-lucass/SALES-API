@@ -11,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -20,24 +21,28 @@ public class EstoqueController {
 
     private final EstoqueService service;
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public EstoqueResponse salvar(@RequestBody @Valid EstoqueRequest request){
         return service.salvar(request);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','VENDEDOR')")
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public Page<EstoqueProjection> buscar(@ModelAttribute EstoqueFilter filter, @PageableDefault Pageable pageable){
         return service.buscar(filter,pageable);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("{estoqueId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void atualizar(@PathVariable Long estoqueId, @RequestBody @Valid EstoqueRequest request){
         service.atualizar(estoqueId, request);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("{estoqueId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void desativar(@PathVariable Long estoqueId){

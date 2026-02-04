@@ -8,10 +8,13 @@ import com.example.SalesHub.exception.FuncaoInvalidaException;
 import com.example.SalesHub.exception.QuantidadeIndiposnivelException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.client.HttpClientErrorException;
+
 import java.time.LocalDateTime;
 
 @RestControllerAdvice
@@ -27,6 +30,7 @@ public class GlobalHandlerException {
                 .data(LocalDateTime.now())
                 .build();
     }
+
     @ExceptionHandler(EntidadeDuplicadaException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     public RespostaError usuarioDuplicado(EntidadeDuplicadaException ex) {
@@ -36,6 +40,7 @@ public class GlobalHandlerException {
                 .data(LocalDateTime.now())
                 .build();
     }
+
     @ExceptionHandler(EntidadeNaoEncontradaException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public RespostaError usuarioNaoEncontrado(EntidadeNaoEncontradaException ex) {
@@ -45,6 +50,7 @@ public class GlobalHandlerException {
                 .data(LocalDateTime.now())
                 .build();
     }
+
     @ExceptionHandler(QuantidadeIndiposnivelException.class)
     @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
     public RespostaError quantidadeIndisponivel(QuantidadeIndiposnivelException ex) {
@@ -54,6 +60,7 @@ public class GlobalHandlerException {
                 .data(LocalDateTime.now())
                 .build();
     }
+
     @ExceptionHandler(FuncaoInvalidaException.class)
     @ResponseStatus(HttpStatus.FORBIDDEN)
     public RespostaError funcaoInvalida(FuncaoInvalidaException ex) {
@@ -63,21 +70,33 @@ public class GlobalHandlerException {
                 .data(LocalDateTime.now())
                 .build();
     }
-//    @ExceptionHandler(Exception.class)
-//    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-//    public RespostaError erroGenerico(Exception ex) {
-//        return RespostaError.builder()
-//                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-//                .erro("Ocorreu um erro interno inesperado. Nossa equipe já foi notificada.")
-//                .data(LocalDateTime.now())
-//                .build();
-//    }
+
     @ExceptionHandler(HttpMessageNotReadableException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public RespostaError erroFormatoJson(HttpMessageNotReadableException ex) {
         return RespostaError.builder()
                 .status(HttpStatus.BAD_REQUEST.value())
-                .erro("Corpo da requisição malformado ou erro de sintaxe no JSON.")
+                .erro("Corpo da requisição mal formado ou erro de sintaxe no JSON.")
+                .data(LocalDateTime.now())
+                .build();
+    }
+
+    @ExceptionHandler(UsernameNotFoundException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public RespostaError credenciaisInvalidas(UsernameNotFoundException ex) {
+        return RespostaError.builder()
+                .status(HttpStatus.UNAUTHORIZED.value())
+                .erro(ex.getMessage())
+                .data(LocalDateTime.now())
+                .build();
+    }
+
+    @ExceptionHandler(HttpClientErrorException.Forbidden.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public RespostaError credenciaisInvalidas(HttpClientErrorException.Forbidden ex) {
+        return RespostaError.builder()
+                .status(HttpStatus.FORBIDDEN.value())
+                .erro("SEM PERMISSAO NECESSARIA")
                 .data(LocalDateTime.now())
                 .build();
     }

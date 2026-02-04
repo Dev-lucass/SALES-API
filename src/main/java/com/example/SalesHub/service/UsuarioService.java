@@ -14,6 +14,8 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -23,6 +25,7 @@ public class UsuarioService {
     private final UsuarioMapper mapper;
     private final UsuarioRepositoryImpl customRepository;
     private final UsuarioRepository repository;
+    private final PasswordEncoder encoder;
 
     public UsuarioResponse salvar(UsuarioRequest request) {
 
@@ -31,6 +34,10 @@ public class UsuarioService {
         );
 
         validarDuplicidade(
+                usuario
+        );
+
+        criptografarSenha(
                 usuario
         );
 
@@ -68,6 +75,10 @@ public class UsuarioService {
                 usuario
         );
 
+        criptografarSenha(
+                usuario
+        );
+
         repository.save(usuario);
     }
 
@@ -92,6 +103,15 @@ public class UsuarioService {
                 .ifPresent(usuarioEncontrado -> {
                     throw new EntidadeDuplicadaException("Usuario ja cadastrado");
                 });
+    }
+
+    private void criptografarSenha(Usuario usuario) {
+        usuario.setSenha(encoder.encode(usuario.getSenha()));
+    }
+
+    public Usuario buscarPeloNome(String nome) {
+        return customRepository.buscarUsuarioPeloNome(nome)
+                .orElseThrow(() -> new UsernameNotFoundException("Usuário/senha estão inválidos"));
     }
 
     public Usuario buscarUsuarioExistente(Long usuarioId) {
