@@ -11,4 +11,5 @@ public interface CustomUsuarioRepository {
     Optional<Usuario> buscarUsuarioDuplicado(Usuario Usuario);
     Page<UsuarioProjection> buscarUsuarios(UsuarioFilter filter, Pageable pageable);
     Optional<Usuario> buscarUsuarioExistente(Long usuarioId);
+    Optional<Usuario> buscarUsuarioPeloNome(String nome);
 }

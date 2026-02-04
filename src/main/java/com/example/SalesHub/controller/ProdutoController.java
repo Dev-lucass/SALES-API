@@ -11,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -20,6 +21,7 @@ public class ProdutoController {
 
     private final ProdutoService service;
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ProdutoResponse salvar(@RequestBody @Valid ProdutoRequest request) {
@@ -32,12 +34,14 @@ public class ProdutoController {
         return service.buscar(filter, pageable);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','VENDEDOR')")
     @PutMapping("{produtoId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void atualizar(@PathVariable Long produtoId, @RequestBody @Valid ProdutoRequest request) {
         service.atualizar(produtoId, request);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("{produtoId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void desativar(@PathVariable Long produtoId) {
