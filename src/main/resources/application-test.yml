@@ -16,9 +16,7 @@ spring:
     database: H2
     show-sql: true
     hibernate:
-      ddl-auto: none
-      naming:
-        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+      ddl-auto: validate
     properties:
       hibernate:
         format_sql: true

@@ -7,13 +7,13 @@ import com.example.SalesHub.model.Venda;
 import com.example.SalesHub.repository.custom.CustomVendaRepository;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Projections;
-import com.querydsl.core.types.dsl.MathExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
+
 import java.math.BigDecimal;
 import java.time.LocalTime;
 import java.util.Optional;
@@ -26,30 +26,19 @@ public class VendaRepositoryImpl implements CustomVendaRepository {
 
     @Override
     public Page<VendaProjection> buscarVendas(VendaFilter filter, Pageable pageable) {
-
         var qVenda = QVenda.venda;
         var builder = new BooleanBuilder();
 
-        Optional.ofNullable(filter.id())
-                .ifPresent(id -> builder.and(qVenda.id.eq(id)));
-
-        Optional.ofNullable(filter.usuarioId())
-                .ifPresent(usuarioId -> builder.and(qVenda.usuario.id.eq(usuarioId)));
-
-        Optional.ofNullable(filter.valor())
-                .ifPresent(valor -> builder.and(qVenda.valor.goe(valor)));
-
-        Optional.ofNullable(filter.quantidade())
-                .ifPresent(quantidade -> builder.and(qVenda.quantidade.eq(quantidade)));
+        Optional.ofNullable(filter.id()).ifPresent(id -> builder.and(qVenda.id.eq(id)));
+        Optional.ofNullable(filter.usuarioId()).ifPresent(uId -> builder.and(qVenda.usuario.id.eq(uId)));
+        Optional.ofNullable(filter.valor()).ifPresent(v -> builder.and(qVenda.valor.goe(v)));
+        Optional.ofNullable(filter.quantidade()).ifPresent(q -> builder.and(qVenda.quantidade.eq(q)));
 
         Optional.ofNullable(filter.valorTotalVendas())
-                .ifPresent(valor -> builder.and(qVenda.quantidade.eq(valor.longValue())));
+                .ifPresent(total -> builder.and(qVenda.valorTotalVendas.goe(total)));
 
-        Optional.ofNullable(filter.dataInicial())
-                .ifPresent(inicio -> builder.and(qVenda.dataVenda.goe(inicio.atStartOfDay())));
-
-        Optional.ofNullable(filter.dataFinal())
-                .ifPresent(fim -> builder.and(qVenda.dataVenda.loe(fim.atTime(LocalTime.MAX))));
+        Optional.ofNullable(filter.dataInicial()).ifPresent(i -> builder.and(qVenda.dataVenda.goe(i.atStartOfDay())));
+        Optional.ofNullable(filter.dataFinal()).ifPresent(f -> builder.and(qVenda.dataVenda.loe(f.atTime(LocalTime.MAX))));
 
         var consulta = query
                 .select(Projections.constructor(VendaProjection.class,
@@ -57,8 +46,8 @@ public class VendaRepositoryImpl implements CustomVendaRepository {
                         qVenda.usuario.id,
                         qVenda.usuario.nome,
                         qVenda.valor,
-                        qVenda.quantidade,
-                        MathExpressions.round(qVenda.valor.sum(), 2).castToNum(BigDecimal.class),
+                        qVenda.quantidade, // Enviando como BigDecimal
+                        qVenda.valorTotalVendas,
                         qVenda.dataVenda
                 ))
                 .from(qVenda)
@@ -73,14 +62,12 @@ public class VendaRepositoryImpl implements CustomVendaRepository {
 
     @Override
     public BigDecimal buscarValorTotalDeVendas(Venda venda) {
-
         var qVenda = QVenda.venda;
-
         return query
                 .select(qVenda.valor.sum())
                 .from(qVenda)
                 .where(qVenda.usuario.id.eq(venda.getUsuario().getId()))
-                .fetchOne();
+                .fetchFirst();
     }
 
     private Long buscarQuantidadeDeVendas(BooleanBuilder builder) {
@@ -89,6 +76,6 @@ public class VendaRepositoryImpl implements CustomVendaRepository {
                 .select(qVenda.id.countDistinct())
                 .from(qVenda)
                 .where(builder)
-                .fetchOne();
+                .fetchFirst();
     }
 }

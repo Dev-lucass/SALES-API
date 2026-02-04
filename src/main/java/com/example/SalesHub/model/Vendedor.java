@@ -20,7 +20,7 @@ public class Vendedor {
     private Long id;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "usuario", nullable = false)
+    @JoinColumn(nullable = false)
     private Usuario usuario;
 
     @Column(nullable = false, unique = true)
@@ -30,10 +30,14 @@ public class Vendedor {
     private LocalDate dataNascimento;
 
     @Column(nullable = false)
+    private Boolean ativo;
+
+    @Column(nullable = false)
     private LocalDateTime criadoEm;
 
     @PrePersist
     private void prePersistir() {
+        if (ativo == null) ativo = true;
         if (criadoEm == null) criadoEm = LocalDateTime.now();
     }
 }

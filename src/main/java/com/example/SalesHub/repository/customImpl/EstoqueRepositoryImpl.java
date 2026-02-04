@@ -13,6 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
+
 import java.util.Optional;
 
 @Repository
@@ -30,13 +31,13 @@ public class EstoqueRepositoryImpl implements CustomEstoqueRepository {
         builder.and(qEstoque.produto.eq(estoque.getProduto()));
 
         if (estoque.getId() != null) {
-            builder.and(qEstoque.id.notIn(estoque.getId()));
+            builder.and(qEstoque.id.ne(estoque.getId()));
         }
 
-        var consulta =  query
+        var consulta = query
                 .selectFrom(qEstoque)
                 .where(builder)
-                .fetchOne();
+                .fetchFirst();
 
         return Optional.ofNullable(consulta);
     }
@@ -62,12 +63,12 @@ public class EstoqueRepositoryImpl implements CustomEstoqueRepository {
                 .ifPresent(quantidade -> builder.and(qEstoque.quantidadeAtual.eq(quantidade)));
 
         var consulta = query.select(Projections.constructor(
-                EstoqueProjection.class,
-                qEstoque.id,
-                qEstoque.produto.id,
-                qEstoque.quantidadeInicial,
-                qEstoque.quantidadeAtual
-        ))
+                        EstoqueProjection.class,
+                        qEstoque.id,
+                        qEstoque.produto.id,
+                        qEstoque.quantidadeInicial,
+                        qEstoque.quantidadeAtual
+                ))
                 .from(qEstoque)
                 .where(builder)
                 .orderBy(qEstoque.id.asc())
@@ -75,16 +76,18 @@ public class EstoqueRepositoryImpl implements CustomEstoqueRepository {
                 .limit(pageable.getPageSize())
                 .fetch();
 
-        return PageableExecutionUtils.getPage(consulta,pageable,this::buscarQuantidadeDeEstoque);
+        return PageableExecutionUtils.getPage(consulta, pageable, this::buscarQuantidadeDeEstoque);
     }
 
-    private Long buscarQuantidadeDeEstoque(){
+    private Long buscarQuantidadeDeEstoque() {
+
         var qEstoque = QEstoque.estoque;
 
         return query
                 .select(qEstoque.id.countDistinct())
                 .from(qEstoque)
-                .fetchOne();
+                .where(qEstoque.ativo.isTrue())
+                .fetchFirst();
     }
 
     @Override
@@ -98,7 +101,7 @@ public class EstoqueRepositoryImpl implements CustomEstoqueRepository {
                         qEstoque.id.eq(estoqueId),
                         qEstoque.ativo.isTrue()
                 )
-                .fetchOne();
+                .fetchFirst();
 
         return Optional.ofNullable(consulta);
     }

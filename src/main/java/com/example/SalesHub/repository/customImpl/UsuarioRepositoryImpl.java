@@ -13,6 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
+
 import java.time.LocalTime;
 import java.util.Optional;
 
@@ -32,15 +33,13 @@ public class UsuarioRepositoryImpl implements CustomUsuarioRepository {
                 .or(qUsuario.email.eq(usuario.getEmail()));
 
         if (usuario.getId() != null) {
-            builder.and(qUsuario.id.notIn(usuario.getId()));
+            builder.and(qUsuario.id.ne(usuario.getId()));
         }
 
         var consulta = query
                 .selectFrom(qUsuario)
                 .where(builder)
-                .fetchOne();
-
-        System.out.println(consulta);
+                .fetchFirst();
 
         return Optional.ofNullable(consulta);
     }
@@ -64,17 +63,21 @@ public class UsuarioRepositoryImpl implements CustomUsuarioRepository {
                 .filter(email -> !email.isBlank())
                 .ifPresent(email -> buillder.and(qUsuario.email.startsWithIgnoreCase(email)));
 
+        Optional.ofNullable(filter.funcao())
+                .ifPresent(funcao -> buillder.and(qUsuario.funcao.eq(funcao)));
+
         Optional.ofNullable(filter.dataInicial())
-                .ifPresent(data -> buillder.and(qUsuario.criadoEm.goe(data.atStartOfDay())));
+                .ifPresent(inicio -> buillder.and(qUsuario.criadoEm.goe(inicio.atStartOfDay())));
 
         Optional.ofNullable(filter.dataFinal())
-                .ifPresent(data -> buillder.and(qUsuario.criadoEm.loe(data.atTime(LocalTime.MAX))));
+                .ifPresent(fim -> buillder.and(qUsuario.criadoEm.loe(fim.atTime(LocalTime.MAX))));
 
         var consulta = query
                 .select(Projections.constructor(UsuarioProjection.class,
                         qUsuario.id,
                         qUsuario.nome,
                         qUsuario.email,
+                        qUsuario.funcao,
                         qUsuario.criadoEm
                 ))
                 .from(qUsuario)
@@ -93,7 +96,8 @@ public class UsuarioRepositoryImpl implements CustomUsuarioRepository {
         return query
                 .select(qUsuario.id.countDistinct())
                 .from(qUsuario)
-                .fetchOne();
+                .where(qUsuario.ativo.isTrue())
+                .fetchFirst();
     }
 
     @Override
@@ -107,7 +111,7 @@ public class UsuarioRepositoryImpl implements CustomUsuarioRepository {
                         qUsuario.id.eq(usuarioId),
                         qUsuario.ativo.isTrue()
                 )
-                .fetchOne();
+                .fetchFirst();
 
         return Optional.ofNullable(consulta);
     }

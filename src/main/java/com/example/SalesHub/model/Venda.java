@@ -1,11 +1,11 @@
 package com.example.SalesHub.model;
 
-import com.example.SalesHub.model.enums.StatusPagamento;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
@@ -21,18 +21,18 @@ public class Venda {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "usuario",nullable = false)
+    @JoinColumn(nullable = false)
     private Usuario usuario;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "produto", nullable = false)
+    @JoinColumn(nullable = false)
     private Produto produto;
 
     @Column(nullable = false)
     private BigDecimal valor;
 
     @Column(nullable = false)
-    private Long quantidade;
+    private BigDecimal quantidade;
 
     @Column(nullable = false)
     private BigDecimal valorTotalVendas;

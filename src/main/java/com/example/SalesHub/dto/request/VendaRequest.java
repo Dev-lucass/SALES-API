@@ -1,8 +1,6 @@
 package com.example.SalesHub.dto.request;
 
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.*;
 import lombok.Builder;
 import java.math.BigDecimal;
 
@@ -14,10 +12,10 @@ public record VendaRequest(
         Long produtoId,
         @Min(1) @NotNull
         Long estoqueId,
-        @Min(1) @NotNull
-        Long quantidade,
-        @Min(0) @NotNull
+        @DecimalMin("1") @DecimalMax("1000000000") @NotNull
+        BigDecimal quantidade,
+        @DecimalMin("0") @DecimalMax("1000000000") @NotNull
         BigDecimal valor,
-        @Min(0) @NotNull @Max(100)
+        @Min(0) @Max(100) @NotNull
         Double desconto) {}
 

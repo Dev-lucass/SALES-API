@@ -4,17 +4,20 @@ import com.example.SalesHub.dto.filter.VendaFilter;
 import com.example.SalesHub.dto.projection.VendaProjection;
 import com.example.SalesHub.dto.request.VendaRequest;
 import com.example.SalesHub.dto.response.entity.VendaResponse;
+import com.example.SalesHub.exception.FuncaoInvalidaException;
 import com.example.SalesHub.mapper.VendaMapper;
 import com.example.SalesHub.model.Estoque;
 import com.example.SalesHub.model.Produto;
 import com.example.SalesHub.model.Usuario;
 import com.example.SalesHub.model.Venda;
+import com.example.SalesHub.model.enums.Funcao;
 import com.example.SalesHub.repository.customImpl.VendaRepositoryImpl;
 import com.example.SalesHub.repository.jpa.VendaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
 import java.math.BigDecimal;
 
 @Service
@@ -33,6 +36,10 @@ public class VendaService {
 
         var usuario = usuarioService.buscarUsuarioExistente(
                 request.usuarioId()
+        );
+
+        validarFuncao(
+                usuario
         );
 
         var produto = produtoService.buscarProdutoPeloId(
@@ -66,7 +73,8 @@ public class VendaService {
         salvarHistorico(
                 usuario,
                 produto,
-                estoque
+                estoque,
+                request.quantidade()
         );
 
         return mapper.toReponse(
@@ -77,11 +85,17 @@ public class VendaService {
         );
     }
 
-    private void salvarHistorico(Usuario usuario, Produto produto, Estoque estoque) {
+    private void validarFuncao(Usuario usuario) {
+        if (usuario.getFuncao() != Funcao.VENDEDOR)
+            throw new FuncaoInvalidaException("Você não é um vendedor, preencha o formulario para se tornar um");
+    }
+
+    private void salvarHistorico(Usuario usuario, Produto produto, Estoque estoque, BigDecimal quantidadeRetirada) {
         historicoService.salvar(
                 usuario,
                 produto,
-                estoque
+                estoque,
+                quantidadeRetirada
         );
     }
 

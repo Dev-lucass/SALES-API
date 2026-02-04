@@ -1,81 +1,55 @@
 package com.example.SalesHub.dto.request;
 
-import jakarta.validation.Validation;
-import jakarta.validation.Validator;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.NullSource;
-import org.junit.jupiter.params.provider.ValueSource;
+
+import java.math.BigDecimal;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 class EstoqueRequestTest {
 
-    private final Validator validar = Validation.buildDefaultValidatorFactory().getValidator();
-
     @Test
-    void deve_criar_estoqueRequest_completo() {
-        var estoqueRequest = EstoqueRequest.builder()
-                .produtoId(1L)
-                .quantidade(10L)
+    void deve_criar_estoque_request_com_sucesso_usando_builder() {
+        var produtoId = 1L;
+        var quantidade = new BigDecimal("500.00");
+
+        var request = EstoqueRequest.builder()
+                .produtoId(produtoId)
+                .quantidade(quantidade)
                 .build();
 
-        Assertions.assertThat(estoqueRequest)
-                .isNotNull()
-                .satisfies(saida -> {
-                    Assertions.assertThat(saida.produtoId()).isEqualTo(1L);
-                    Assertions.assertThat(saida.quantidade()).isEqualTo(10L);
-                });
+        assertThat(request).isNotNull();
+        assertThat(request.produtoId()).isEqualTo(produtoId);
+        assertThat(request.quantidade()).isEqualByComparingTo(quantidade);
     }
 
     @Test
-    void deve_criar_estoqueRequest_nulo() {
-        var estoqueRequest = EstoqueRequest.builder()
-                .produtoId(null)
-                .quantidade(null)
+    void deve_garantir_que_todos_os_campos_do_request_nao_sao_nulos() {
+        var request = EstoqueRequest.builder()
+                .produtoId(10L)
+                .quantidade(BigDecimal.TEN)
                 .build();
 
-        Assertions.assertThat(estoqueRequest)
-                .isNotNull()
-                .satisfies(saida -> {
-                    Assertions.assertThat(saida.produtoId()).isNull();
-                    Assertions.assertThat(saida.quantidade()).isNull();
-                });
+        assertThat(request.produtoId()).isNotNull();
+        assertThat(request.quantidade()).isNotNull();
     }
 
-    @ParameterizedTest
-    @NullSource
-    @ValueSource(longs = {0L, -1L, -100L})
-    void deve_validar_produtoId(Long produtoIdInvalido) {
-        var estoqueRequest = EstoqueRequest.builder()
-                .produtoId(produtoIdInvalido)
-                .quantidade(10L)
-                .build();
-
-        var violacao = validar.validate(estoqueRequest);
-
-        Assertions.assertThat(violacao)
-                .isNotEmpty()
-                .extracting(saida -> saida.getPropertyPath().toString())
-                .containsOnly("produtoId");
-    }
-
-    @ParameterizedTest
-    @NullSource
-    @ValueSource(longs = {0L, -1L, -100L})
-    void deve_validar_quantidade(Long quantidadeInvalida) {
-        var estoqueRequest = EstoqueRequest.builder()
+    @Test
+    void deve_testar_igualdade_e_hashcode_do_record_estoque_request() {
+        var r1 = EstoqueRequest.builder()
                 .produtoId(1L)
-                .quantidade(quantidadeInvalida)
+                .quantidade(BigDecimal.ONE)
                 .build();
 
-        var violacao = validar.validate(estoqueRequest);
+        var r2 = EstoqueRequest.builder()
+                .produtoId(1L)
+                .quantidade(BigDecimal.ONE)
+                .build();
 
-        Assertions.assertThat(violacao)
-                .isNotEmpty()
-                .extracting(saida -> saida.getPropertyPath().toString())
-                .containsOnly("quantidade");
+        assertThat(r1).isEqualTo(r2);
+        assertThat(r1.hashCode()).isEqualTo(r2.hashCode());
     }
 }

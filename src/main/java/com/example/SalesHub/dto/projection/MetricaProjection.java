@@ -4,8 +4,8 @@ import lombok.Builder;
 import java.math.BigDecimal;
 
 @Builder
-public record EstoqueProjection(
-        Long id,
+public record MetricaProjection(
+        Long rank,
         Long produtoId,
-        BigDecimal quantidadeInicial,
-        BigDecimal quantidadeAtual) {}
+        String produto,
+        BigDecimal quantidadeRetirada) {}

@@ -39,12 +39,16 @@ public class HistoricoRepositoryImpl implements CustomHistoricoRepository {
         Optional.ofNullable(filter.estoqueId())
                 .ifPresent(estoqueId -> builder.and(qHistorico.estoque.id.eq(estoqueId)));
 
+        Optional.ofNullable(filter.quantidadeRetirada())
+                .ifPresent(quantidade -> builder.and(qHistorico.quantidadeRetirada.eq(quantidade)));
+
         var consulta = query
                 .select(Projections.constructor(HistoricoProjection.class,
                         qHistorico.id,
                         qHistorico.usuario.id,
                         qHistorico.produto.id,
                         qHistorico.estoque.id,
+                        qHistorico.quantidadeRetirada,
                         qHistorico.criadoEm
                 ))
                 .from(qHistorico)
@@ -64,6 +68,6 @@ public class HistoricoRepositoryImpl implements CustomHistoricoRepository {
         return query
                 .select(qHistorico.id.countDistinct())
                 .from(qHistorico)
-                .fetchOne();
+                .fetchFirst();
     }
 }

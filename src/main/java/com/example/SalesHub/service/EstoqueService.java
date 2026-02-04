@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import java.math.BigDecimal;
 
 @Service
 @RequiredArgsConstructor
@@ -88,7 +89,7 @@ public class EstoqueService {
         estoque.setAtivo(false);
     }
 
-    public EstoqueResponse pegarQuantidadeDoProdutoDoEstoque(Long estoqueId, Long quantidadeParaRetirada) {
+    public EstoqueResponse pegarQuantidadeDoProdutoDoEstoque(Long estoqueId, BigDecimal quantidadeParaRetirada) {
 
         validarQuantidadeDisponivel(
                 estoqueId,
@@ -126,17 +127,18 @@ public class EstoqueService {
                 .orElseThrow(() -> new EntidadeNaoEncontradaException("Estoque não encontrado"));
     }
 
-    private Long subtrairQuantidade(Long quantidadeAtualEstoque, Long quantidadeRequisitadaParaRetirada) {
-        return quantidadeAtualEstoque - quantidadeRequisitadaParaRetirada;
+    private BigDecimal subtrairQuantidade(BigDecimal quantidadeAtualEstoque, BigDecimal quantidadeRequisitadaParaRetirada) {
+        return quantidadeAtualEstoque.subtract(quantidadeRequisitadaParaRetirada);
     }
 
-    private void validarQuantidadeDisponivel(Long estoqueId, Long quantidadeParaRetirada) {
+    private void validarQuantidadeDisponivel(Long estoqueId, BigDecimal quantidadeParaRetirada) {
 
         var estoque = buscarPorId(
                 estoqueId
         );
 
-        if (estoque.getQuantidadeAtual() <= 0 || estoque.getQuantidadeAtual() - quantidadeParaRetirada < 0)
+        if (estoque.getQuantidadeAtual().signum() <= 0 || quantidadeParaRetirada.compareTo(estoque.getQuantidadeAtual()) > 0) {
             throw new QuantidadeIndiposnivelException("Quantidade do produto indisponivel no estoque");
+        }
     }
 }

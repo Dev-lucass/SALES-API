@@ -1,36 +1,38 @@
-    package com.example.SalesHub.model;
+package com.example.SalesHub.model;
 
-    import jakarta.persistence.*;
-    import lombok.AllArgsConstructor;
-    import lombok.Builder;
-    import lombok.Data;
-    import lombok.NoArgsConstructor;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-    @Entity
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @Data
-    public class Estoque {
-        @Id
-        @GeneratedValue(strategy = GenerationType.IDENTITY)
-        private Long id;
+import java.math.BigDecimal;
 
-        @ManyToOne(fetch = FetchType.LAZY)
-        @JoinColumn(name = "produto", nullable = false)
-        private Produto produto;
+@Entity
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@Data
+public class Estoque {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-        @Column(nullable = false)
-        private Long quantidadeInicial;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(nullable = false)
+    private Produto produto;
 
-        @Column(nullable = false)
-        private Long quantidadeAtual;
+    @Column(nullable = false)
+    private BigDecimal quantidadeInicial;
 
-        @Column(nullable = false)
-        private Boolean ativo;
+    @Column(nullable = false)
+    private BigDecimal quantidadeAtual;
 
-        @PrePersist
-        private void prePersistir(){
-            if(ativo == null) ativo = true;
-        }
+    @Column(nullable = false)
+    private Boolean ativo;
+
+    @PrePersist
+    private void prePersistir() {
+        if (ativo == null) ativo = true;
     }
+}

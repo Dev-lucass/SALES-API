@@ -1,68 +1,69 @@
 package com.example.SalesHub.dto.response.entity;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
+
+import java.math.BigDecimal;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 class EstoqueResponseTest {
 
     @Test
-    void deve_criar_estoqueResponse_completo() {
-        var estoqueResponse = EstoqueResponse.builder()
-                .id(1L)
-                .produtoId(10L)
-                .quantidadeInicial(100L)
-                .quantidadeAtual(85L)
-                .build();
+    void deve_criar_estoque_response_com_sucesso_usando_builder() {
+        var id = 1L;
+        var produtoId = 10L;
+        var quantidadeInicial = new BigDecimal("100.00");
+        var quantidadeAtual = new BigDecimal("75.00");
 
-        Assertions.assertThat(estoqueResponse)
-                .isNotNull()
-                .satisfies(saida -> {
-                    Assertions.assertThat(saida.id()).isEqualTo(1L);
-                    Assertions.assertThat(saida.produtoId()).isEqualTo(10L);
-                    Assertions.assertThat(saida.quantidadeInicial()).isEqualTo(100L);
-                    Assertions.assertThat(saida.quantidadeAtual()).isEqualTo(85L);
-                });
-    }
-
-    @Test
-    void deve_criar_estoqueResponse_com_valores_nulos() {
-        var estoqueResponse = EstoqueResponse.builder()
-                .id(null)
-                .produtoId(null)
-                .quantidadeInicial(null)
-                .quantidadeAtual(null)
-                .build();
-
-        Assertions.assertThat(estoqueResponse)
-                .isNotNull()
-                .satisfies(saida -> {
-                    Assertions.assertThat(saida.id()).isNull();
-                    Assertions.assertThat(saida.produtoId()).isNull();
-                    Assertions.assertThat(saida.quantidadeInicial()).isNull();
-                    Assertions.assertThat(saida.quantidadeAtual()).isNull();
-                });
-    }
-
-    @Test
-    void deve_garantir_integridade_dos_dados() {
-        var id = 500L;
-        var produtoId = 25L;
-        var inicial = 1000L;
-        var atual = 500L;
-
-        var estoqueResponse = EstoqueResponse.builder()
+        var response = EstoqueResponse.builder()
                 .id(id)
                 .produtoId(produtoId)
-                .quantidadeInicial(inicial)
-                .quantidadeAtual(atual)
+                .quantidadeInicial(quantidadeInicial)
+                .quantidadeAtual(quantidadeAtual)
                 .build();
 
-        Assertions.assertThat(estoqueResponse.id()).isEqualTo(id);
-        Assertions.assertThat(estoqueResponse.produtoId()).isEqualTo(produtoId);
-        Assertions.assertThat(estoqueResponse.quantidadeInicial()).isEqualTo(inicial);
-        Assertions.assertThat(estoqueResponse.quantidadeAtual()).isEqualTo(atual);
+        assertThat(response).isNotNull();
+        assertThat(response.id()).isEqualTo(id);
+        assertThat(response.produtoId()).isEqualTo(produtoId);
+        assertThat(response.quantidadeInicial()).isEqualByComparingTo(quantidadeInicial);
+        assertThat(response.quantidadeAtual()).isEqualByComparingTo(quantidadeAtual);
+    }
+
+    @Test
+    void deve_garantir_que_todos_os_campos_da_resposta_nao_sao_nulos() {
+        var response = EstoqueResponse.builder()
+                .id(1L)
+                .produtoId(2L)
+                .quantidadeInicial(BigDecimal.ZERO)
+                .quantidadeAtual(BigDecimal.TEN)
+                .build();
+
+        assertThat(response.id()).isNotNull();
+        assertThat(response.produtoId()).isNotNull();
+        assertThat(response.quantidadeInicial()).isNotNull();
+        assertThat(response.quantidadeAtual()).isNotNull();
+    }
+
+    @Test
+    void deve_testar_igualdade_e_hashcode_do_record_estoque_response() {
+        var r1 = EstoqueResponse.builder()
+                .id(1L)
+                .produtoId(10L)
+                .quantidadeInicial(BigDecimal.ONE)
+                .quantidadeAtual(BigDecimal.ONE)
+                .build();
+
+        var r2 = EstoqueResponse.builder()
+                .id(1L)
+                .produtoId(10L)
+                .quantidadeInicial(BigDecimal.ONE)
+                .quantidadeAtual(BigDecimal.ONE)
+                .build();
+
+        assertThat(r1).isEqualTo(r2);
+        assertThat(r1.hashCode()).isEqualTo(r2.hashCode());
     }
 }

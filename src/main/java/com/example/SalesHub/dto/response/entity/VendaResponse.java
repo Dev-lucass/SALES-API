@@ -12,7 +12,7 @@ public record VendaResponse(
         ProdutoResponse produto,
         EstoqueResponse estoque,
         BigDecimal valor,
-        Long quantidade,
+        BigDecimal quantidade,
         BigDecimal valorTotalVendas,
         @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss")
         LocalDateTime dataVenda) {}
