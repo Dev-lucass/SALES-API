@@ -46,7 +46,7 @@ public class VendaRepositoryImpl implements CustomVendaRepository {
                         qVenda.usuario.id,
                         qVenda.usuario.nome,
                         qVenda.valor,
-                        qVenda.quantidade, // Enviando como BigDecimal
+                        qVenda.quantidade, 
                         qVenda.valorTotalVendas,
                         qVenda.dataVenda
                 ))

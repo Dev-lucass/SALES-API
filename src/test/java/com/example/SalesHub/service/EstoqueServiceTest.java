@@ -38,13 +38,10 @@ class EstoqueServiceTest {
 
     @Mock
     private EstoqueRepositoryImpl repositoryCustom;
-
     @Mock
     private ProdutoService produtoService;
-
     @Mock
     private EstoqueRepository repository;
-
     @Mock
     private EstoqueMapper mapper;
 
@@ -116,7 +113,11 @@ class EstoqueServiceTest {
                 .isInstanceOf(EntidadeDuplicadaException.class)
                 .hasMessageContaining("Produto ja cadastrado no estoque");
 
-        verify(repository, never()).save(any());
+        var resultado = service.pegarQuantidadeDoProdutoDoEstoque(1L, quantidadeParaRetirar);
+
+        assertThat(estoque.getQuantidadeAtual()).isEqualTo(6L);
+        assertThat(resultado.quantidadeAtual()).isEqualTo(6L);
+        verify(repository).save(estoque);
     }
 
     @Test
