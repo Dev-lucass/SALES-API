@@ -3,7 +3,7 @@ spring:
     banner-mode: OFF
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/salesDB
+    url: jdbc:postgresql://PG_DB:5432/salesDB
     username: postgres
     password: postgres
 
@@ -11,7 +11,7 @@ spring:
     database: POSTGRESQL
     show-sql: true
     hibernate:
-      ddl-auto: validate
+      ddl-auto: none
     properties:
       hibernate:
         format_sql: true
