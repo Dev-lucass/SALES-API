@@ -1,0 +1,56 @@
+services:
+  db:
+    container_name: PG_DB
+    image: postgres:16
+    restart: always
+    networks:
+      - SALES_NETWORK
+    environment:
+      - POSTGRES_DB=salesDB
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - "5432:5432"
+
+  dbgate:
+    container_name: DBGATE
+    image: dbgate/dbgate
+    restart: always
+    networks:
+      - SALES_NETWORK
+    ports:
+      - 82:3000
+    volumes:
+      - dbgate-data:/root/.dbgate
+    environment:
+      CONNECTIONS: con1
+      LABEL_con1: postgres_db
+      SERVER_con1: PG_DB
+      USER_con1: postgres
+      PASSWORD_con1: postgres
+      PORT_con1: 5432
+      ENGINE_con1: postgres@dbgate-plugin-postgres
+
+  api:
+    container_name: SALES_API
+    build:
+      context: .
+      args:
+        - SECRETKEY=${SECRETKEY}
+    environment:
+      - SECRETKEY=${SECRETKEY}
+    restart: always
+    networks:
+      - SALES_NETWORK
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+
+volumes:
+  dbgate-data:
+    driver: local
+
+networks:
+  SALES_NETWORK:
+    driver: bridge
